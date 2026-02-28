@@ -184,6 +184,12 @@ export default function RegisterPage() {
                                 {error}
                             </div>
                         )}
+                        {registered && (
+                            <div className="p-3 rounded-lg bg-green-50 border border-green-200 text-green-700 text-sm">
+                                <p className="font-medium">Check your email!</p>
+                                <p>We've sent a verification link to {registeredEmail}. Please check your inbox and click the link to activate your account.</p>
+                            </div>
+                        )}
                         <Button
                             className="w-full bg-blue-600 hover:bg-blue-700"
                             type="submit"
