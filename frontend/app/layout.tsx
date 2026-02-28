@@ -12,6 +12,9 @@ const inter = Inter({
 
 export const metadata: Metadata = {
     metadataBase: new URL("https://swiftconverter.pro"),
+    verification: {
+        google: "qW53Zl5B7Ub3b-veOhLbV1wrUYp0TJ7cGmDR9Tba-Kg",
+    },
     title: {
         default: "SWIFT Converter Pro - MT to MX & ISO 20022 Conversion Tool",
         template: "%s | SWIFT Converter Pro"
