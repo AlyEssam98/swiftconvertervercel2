@@ -88,7 +88,15 @@ export default function LoginPage() {
         
         // Listen for messages from popup
         const messageHandler = (event: MessageEvent) => {
-            if (event.origin !== window.location.origin) return;
+            // Allow messages from Railway backend and local development
+            const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081';
+            const allowedOrigins = [
+                window.location.origin,
+                backendUrl,
+                'https://swiftconverter-backend-production.up.railway.app'
+            ];
+            
+            if (!allowedOrigins.includes(event.origin)) return;
             
             if (event.data.type === 'OAUTH_SUCCESS') {
                 popup.close();
