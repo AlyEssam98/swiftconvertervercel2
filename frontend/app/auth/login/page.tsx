@@ -72,9 +72,64 @@ export default function LoginPage() {
     const handleGoogleLogin = () => {
         setSocialLoading('google');
         const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081';
-        // Use Spring Security's standard OAuth2 authorization endpoint
-        const url = `${backendUrl}/oauth2/authorization/google`;
-        window.location.href = url;
+        
+        // Use popup to avoid Self-XSS warning and better UX
+        const popup = window.open(
+            `${backendUrl}/oauth2/authorization/google`,
+            'google-oauth',
+            'width=500,height=600,scrollbars=yes,resizable=yes'
+        );
+        
+        if (!popup) {
+            setError('Popup blocked. Please allow popups and try again.');
+            setSocialLoading(null);
+            return;
+        }
+        
+        // Listen for messages from popup
+        const messageHandler = (event: MessageEvent) => {
+            if (event.origin !== window.location.origin) return;
+            
+            if (event.data.type === 'OAUTH_SUCCESS') {
+                popup.close();
+                const token = event.data.token;
+                if (token) {
+                    login(token);
+                    setTimeout(() => router.push('/dashboard'), 100);
+                } else {
+                    setError('OAuth login failed. No token received.');
+                }
+                setSocialLoading(null);
+                window.removeEventListener('message', messageHandler);
+            } else if (event.data.type === 'OAUTH_ERROR') {
+                popup.close();
+                setError(event.data.error || 'OAuth login failed');
+                setSocialLoading(null);
+                window.removeEventListener('message', messageHandler);
+            }
+        };
+        
+        window.addEventListener('message', messageHandler);
+        
+        // Fallback: check if popup was closed manually
+        const checkClosed = setInterval(() => {
+            if (popup.closed) {
+                clearInterval(checkClosed);
+                setSocialLoading(null);
+                window.removeEventListener('message', messageHandler);
+                setError('OAuth login was cancelled');
+            }
+        }, 1000);
+        
+        // Timeout after 5 minutes
+        setTimeout(() => {
+            if (!popup.closed) {
+                popup.close();
+                setSocialLoading(null);
+                window.removeEventListener('message', messageHandler);
+                setError('OAuth login timed out');
+            }
+        }, 5 * 60 * 1000);
     };
 
     return (
