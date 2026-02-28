@@ -17,6 +17,8 @@ export default function RegisterPage() {
     const [isLoading, setIsLoading] = useState(false);
     const { login } = useAuth();
     const [error, setError] = useState('');
+    const [registered, setRegistered] = useState(false);
+    const [registeredEmail, setRegisteredEmail] = useState('');
     const router = useRouter();
 
     const getTokenFromResponse = (data: unknown): string | null => {
@@ -25,6 +27,13 @@ export default function RegisterPage() {
         const obj = data as Record<string, unknown>;
         const token = (obj.token ?? obj.accessToken ?? obj.access_token) as string | undefined;
         return typeof token === 'string' && token.trim() ? token.trim() : null;
+    };
+
+    const getMessageFromResponse = (data: unknown): string | null => {
+        if (!data || typeof data !== 'object') return null;
+        const obj = data as Record<string, unknown>;
+        const message = (obj.message ?? obj.refreshToken) as string | undefined;
+        return typeof message === 'string' && message.trim() ? message.trim() : null;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -45,11 +54,23 @@ export default function RegisterPage() {
             const res = await api.post('/api/v1/auth/register', { email, password });
             const data = res?.data;
             const token = getTokenFromResponse(data);
+            const message = getMessageFromResponse(data);
+            
+            if (!token && message) {
+                // Email verification required
+                setRegisteredEmail(email);
+                setRegistered(true);
+                setIsLoading(false);
+                return;
+            }
+            
             if (!token) {
                 const msg = (data as { message?: string })?.message;
                 setError(msg || 'Registration succeeded but no session token was returned. Please sign in.');
+                setIsLoading(false);
                 return;
             }
+            
             login(token);
             // Redirect after a small delay to allow state to update
             setTimeout(() => router.push('/dashboard'), 100);
