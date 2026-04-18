@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { getAllBlogPosts } from '@/lib/blog';
+import { getAllErrorCodes } from '@/lib/errorCodes';
 
 const DOMAIN = 'https://www.swiftmxbridge.com';
 
@@ -36,6 +37,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.5,
     },
+    {
+      url: `${DOMAIN}/error-codes`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
   ];
 
   const blogRoutes: MetadataRoute.Sitemap = getAllBlogPosts().map((post) => ({
@@ -45,6 +52,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
+  const errorRoutes: MetadataRoute.Sitemap = getAllErrorCodes().map((err) => ({
+    url: `${DOMAIN}/error-codes/${err.code}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly',
+    priority: 0.8,
+  }));
+
   const dynamicRoutes: MetadataRoute.Sitemap = conversionPairs.map((pair) => ({
     url: `${DOMAIN}/convert/${pair}`,
     lastModified: new Date(),
@@ -52,5 +66,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.9,
   }));
 
-  return [...staticRoutes, ...blogRoutes, ...dynamicRoutes];
+  return [...staticRoutes, ...blogRoutes, ...errorRoutes, ...dynamicRoutes];
 }

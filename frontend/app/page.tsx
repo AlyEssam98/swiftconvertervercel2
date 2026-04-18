@@ -70,7 +70,11 @@ export default function LandingPage() {
                             <span className="text-xs text-gray-500">MT to MX Translation</span>
                         </div>
                     </Link>
-                    <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-6">
+                        <div className="hidden md:flex items-center space-x-6 mr-4">
+                            <Link href="/blog" className="text-gray-600 hover:text-gray-900 text-sm font-medium">Blog</Link>
+                            <Link href="/error-codes" className="text-gray-600 hover:text-gray-900 text-sm font-medium">Error Codes</Link>
+                        </div>
                         <Link href="/auth/login" className="text-gray-600 hover:text-gray-900 text-sm font-medium">
                             Sign in
                         </Link>
