@@ -11,30 +11,30 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-    metadataBase: new URL("https://swiftconverter.pro"),
+    metadataBase: new URL("https://www.swiftmxbridge.com"),
     verification: {
         google: "qW53Zl5B7Ub3b-veOhLbV1wrUYp0TJ7cGmDR9Tba-Kg",
     },
     title: {
-        default: "SWIFT Converter Pro - MT to MX & ISO 20022 Conversion Tool",
-        template: "%s | SWIFT Converter Pro"
+        default: "SWIFT MT to MX Converter | ISO 20022 Migration Bridge",
+        template: "%s | SwiftMX Bridge"
     },
-    description: "Free online MT103 to MX converter, ISO 20022 validator, pacs.008 generator. Convert SWIFT MT messages to MX format instantly. Professional MT to MX conversion tool for financial institutions.",
+    description: "Instantly convert SWIFT MT103, MT202, & MT940 to ISO 20022 MX (pacs, camt). Bank-grade security, CBPR+ compliant, and API-ready. Start for free.",
     keywords: [
-        "MT103 to MX converter",
+        "SWIFT MT to MX converter",
+        "ISO 20022 message converter",
+        "MT103 to pacs.008 converter",
+        "MT202 to pacs.009 generator",
+        "MT940 to camt.053 conversion",
+        "Online SWIFT message translator",
+        "CBPR+ conversion tool",
         "ISO 20022 validator online",
-        "pacs.008 generator",
-        "MT to MX conversion tool",
-        "SWIFT MT103 converter",
-        "MT202 to pacs.009",
-        "MT940 to camt.053",
-        "SWIFT message converter",
-        "ISO 20022 conversion",
-        "financial message transformation"
+        "SWIFT MX bridge SaaS",
+        "Bank-grade SWIFT converter"
     ],
-    authors: [{ name: "SWIFT Converter Pro" }],
-    creator: "SWIFT Converter Pro",
-    publisher: "SWIFT Converter Pro",
+    authors: [{ name: "SwiftMX Bridge" }],
+    creator: "SwiftMX Bridge",
+    publisher: "SwiftMX Bridge",
     icons: {
         icon: [
             { url: '/favicon.svg', type: 'image/svg+xml' },
@@ -56,10 +56,10 @@ export const metadata: Metadata = {
     openGraph: {
         type: "website",
         locale: "en_US",
-        url: "https://swiftconverter.pro",
-        siteName: "SWIFT Converter Pro",
-        title: "MT103 to MX Converter | Free ISO 20022 Online Tool",
-        description: "Convert MT103, MT202, MT940 to MX format instantly. Free online pacs.008 generator and ISO 20022 validator. Professional SWIFT message conversion.",
+        url: "https://www.swiftmxbridge.com",
+        siteName: "SwiftMX Bridge",
+        title: "SWIFT MT to MX Converter | ISO 20022 Migration Bridge",
+        description: "Instantly convert SWIFT MT103, MT202, & MT940 to ISO 20022 MX (pacs, camt). Bank-grade security, CBPR+ compliant, and API-ready. Start for free.",
         images: [
             {
                 url: "/og-image.png",
@@ -71,12 +71,12 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: "summary_large_image",
-        title: "MT103 to MX Converter | SWIFT Conversion Tool",
-        description: "Free online MT to MX converter. Convert SWIFT messages to ISO 20022 format instantly.",
+        title: "SWIFT MT to MX Converter | ISO 20022 Migration Bridge",
+        description: "Instantly convert SWIFT MT103, MT202, & MT940 to ISO 20022 MX (pacs, camt). Bank-grade security, CBPR+ compliant, and API-ready. Start for free.",
         images: ["/og-image.png"],
     },
     alternates: {
-        canonical: "https://swiftconverter.pro",
+        canonical: "https://www.swiftmxbridge.com",
     },
 };
 

@@ -23,7 +23,7 @@ export default function LandingPage() {
                             <ArrowRightLeft className="w-5 h-5 text-white" />
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-lg font-bold text-gray-900">SWIFT Converter</span>
+                            <span className="text-lg font-bold text-gray-900">SwiftMX Bridge</span>
                             <span className="text-xs text-gray-500">MT to MX Translation</span>
                         </div>
                     </Link>
@@ -50,12 +50,11 @@ export default function LandingPage() {
                                 Instant MT to MX Conversion
                             </div>
                             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-                                MT103 to MX Converter &
-                                <span className="text-blue-600"> ISO 20022 Validator</span>
+                                Seamless SWIFT MT to MX Conversion for
+                                <span className="text-blue-600"> Modern Banking</span>
                             </h1>
                             <p className="text-lg text-gray-600 mb-8">
-                                Convert SWIFT MT messages to ISO 20022 MX format instantly. 
-                                Professional pacs.008 generator with bank-grade validation.
+                                Don&apos;t let legacy systems stall your ISO 20022 migration. SwiftMX Bridge provides an instant, secure, and validated translation layer for your financial messaging. Whether you&apos;re handling MT103 customer transfers or MT940 statements, our engine ensures 100% compliance with CBPR+ and High-Value Payment System (HVPS+) standards.
                             </p>
                             <div className="flex flex-wrap gap-4 mb-8">
                                 <Link href="/auth/register">
@@ -126,8 +125,8 @@ export default function LandingPage() {
             <section id="try-it" className="container mx-auto px-4 pb-20">
                 <div className="max-w-4xl mx-auto">
                     <div className="text-center mb-8">
-                        <h2 className="text-2xl font-bold text-gray-900 mb-2">Try It Now — Free</h2>
-                        <p className="text-gray-500">No signup required. Get 1 free conversion instantly.</p>
+                        <h2 className="text-2xl font-bold text-gray-900 mb-2">Bridging the Gap to ISO 20022 Compliance</h2>
+                        <p className="text-gray-500">Try our free conversion tool below. No signup required.</p>
                     </div>
                     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                         <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
@@ -293,7 +292,7 @@ export default function LandingPage() {
                                 <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
                                     <ArrowRightLeft className="w-5 h-5 text-white" />
                                 </div>
-                                <span className="text-lg font-semibold text-white">SWIFT Converter</span>
+                                <span className="text-lg font-semibold text-white">SwiftMX Bridge</span>
                             </div>
                             <p className="text-sm">Professional MT to MX conversion tool for financial institutions.</p>
                         </div>
@@ -320,7 +319,7 @@ export default function LandingPage() {
                         </div>
                     </div>
                     <div className="border-t border-gray-800 pt-8 text-center text-sm">
-                        <p>© 2026 SWIFT Converter. Professional MT to MX online conversion, MT103 to MX, swift converter online for financial messaging. All rights reserved.</p>
+                        <p>© 2026 SwiftMX Bridge. Professional MT to MX online conversion, MT103 to MX, swift converter online for financial messaging. All rights reserved.</p>
                     </div>
                 </div>
             </footer>
