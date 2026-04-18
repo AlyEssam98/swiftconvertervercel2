@@ -30,17 +30,46 @@ export default function CallbackContent() {
             processedRef.current = true;
             try {
                 login(token);
-                // Redirect after a small delay to allow state to update
-                setTimeout(() => router.push('/dashboard'), 100);
+                
+                // If this is a popup window, send message to parent and close
+                if (window.opener) {
+                    window.opener.postMessage({
+                        type: 'OAUTH_SUCCESS',
+                        token: token
+                    }, window.location.origin);
+                    window.close();
+                } else {
+                    // Fallback for non-popup scenarios (direct navigation)
+                    setTimeout(() => router.push('/dashboard'), 100);
+                }
             } catch (err) {
-                setError('Failed to process login. Please try again.');
-                setTimeout(() => router.push('/auth/login'), 3000);
+                // If this is a popup window, send error message to parent and close
+                if (window.opener) {
+                    window.opener.postMessage({
+                        type: 'OAUTH_ERROR',
+                        error: 'Failed to process login. Please try again.'
+                    }, window.location.origin);
+                    window.close();
+                } else {
+                    setError('Failed to process login. Please try again.');
+                    setTimeout(() => router.push('/auth/login'), 3000);
+                }
             }
         } else if (searchParams.toString()) {
             // Only set error if we have search params (meaning callback was attempted)
             processedRef.current = true;
-            setError('No authentication token received. Please try again.');
-            setTimeout(() => router.push('/auth/login'), 3000);
+            
+            // If this is a popup window, send error message to parent and close
+            if (window.opener) {
+                window.opener.postMessage({
+                    type: 'OAUTH_ERROR',
+                    error: 'No authentication token received. Please try again.'
+                }, window.location.origin);
+                window.close();
+            } else {
+                setError('No authentication token received. Please try again.');
+                setTimeout(() => router.push('/auth/login'), 3000);
+            }
         }
     }, [searchParams, login, router]);
 
