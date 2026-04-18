@@ -15,6 +15,49 @@ export default function LandingPage() {
 
     return (
         <div className="min-h-screen bg-white">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@graph": [
+                            {
+                                "@type": "SoftwareApplication",
+                                "name": "SwiftMX Bridge",
+                                "applicationCategory": "FinanceApplication",
+                                "operatingSystem": "Web",
+                                "description": "Professional SWIFT MT to MX conversion and ISO 20022 mapping tool for financial institutions.",
+                                "offers": {
+                                    "@type": "Offer",
+                                    "price": "0",
+                                    "priceCurrency": "USD"
+                                }
+                            },
+                            {
+                                "@type": "FAQPage",
+                                "mainEntity": [
+                                    {
+                                        "@type": "Question",
+                                        "name": "What is SWIFT MT to MX conversion?",
+                                        "acceptedAnswer": {
+                                            "@type": "Answer",
+                                            "text": "SWIFT MT to MX conversion is the process of translating legacy FIN messages (like MT103) into the modern ISO 20022 XML format (like pacs.008) to ensure global payment compliance."
+                                        }
+                                    },
+                                    {
+                                        "@type": "Question",
+                                        "name": "Is the conversion CBPR+ compliant?",
+                                        "acceptedAnswer": {
+                                            "@type": "Answer",
+                                            "text": "Yes, SwiftMX Bridge validates all output against official ISO 20022 XML schemas and CBPR+ guidelines."
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    })
+                }}
+            />
             {/* Header */}
             <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
                 <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
