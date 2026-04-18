@@ -21,8 +21,18 @@ export default function CallbackContent() {
 
         if (errorParam) {
             processedRef.current = true;
-            setError('OAuth2 authentication failed. Please try again or use email/password login.');
-            setTimeout(() => router.push('/auth/login'), 3000);
+            
+            // If this is a popup window, send error message to parent and close
+            if (window.opener) {
+                window.opener.postMessage({
+                    type: 'OAUTH_ERROR',
+                    error: 'OAuth2 authentication failed. Please try again or use email/password login.'
+                }, window.location.origin);
+                window.close();
+            } else {
+                setError('OAuth2 authentication failed. Please try again or use email/password login.');
+                setTimeout(() => router.push('/auth/login'), 3000);
+            }
             return;
         }
 
