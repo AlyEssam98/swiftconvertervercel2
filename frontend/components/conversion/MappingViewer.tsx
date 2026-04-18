@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 import { mt103Mappings, FieldMapping } from '@/lib/fieldMappings';
+import { useAuth } from '@/context/AuthContext';
 import { ChevronRight, Code, Info, FileText } from 'lucide-react';
 import Link from 'next/link';
 
 export default function MappingViewer() {
+  const { user } = useAuth();
   const [selectedTag, setSelectedTag] = useState(mt103Mappings[0] as FieldMapping);
 
   return (
@@ -87,7 +89,7 @@ export default function MappingViewer() {
         <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg shadow-blue-500/20">
           <h4 className="font-bold mb-2">Ready to automate this mapping?</h4>
           <p className="text-blue-100 text-sm mb-4">Our engine handles all these complexities natively, ensuring 100% compliance with CBPR+ rules.</p>
-          <Link href="/auth/register" className="inline-block bg-white text-blue-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-50 transition-colors">
+          <Link href={user ? "/dashboard/convert" : "/auth/register"} className="inline-block bg-white text-blue-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-50 transition-colors">
             Try Conversion Now
           </Link>
         </div>

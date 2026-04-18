@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { callHealthCheck } from '@/lib/api';
+import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle, Zap, Shield, Clock, FileCode2, ArrowRightLeft, Globe, Menu, X } from 'lucide-react';
@@ -11,6 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function LandingPage() {
+    const { user } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     useEffect(() => {
@@ -80,11 +82,15 @@ export default function LandingPage() {
                         <Link href="/error-codes" className="text-sm font-medium text-muted-foreground hover:text-blue-600 transition-colors">Error Codes</Link>
                         <Link href="/field-explorer" className="text-sm font-medium text-muted-foreground hover:text-blue-600 transition-colors">Explorer</Link>
                         <div className="h-4 w-px bg-border mx-2" />
-                        <Link href="/auth/login" className="text-sm font-medium text-muted-foreground hover:text-blue-600 transition-colors">Sign in</Link>
+                        {user ? (
+                            <Link href="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-blue-600 transition-colors">Dashboard</Link>
+                        ) : (
+                            <Link href="/auth/login" className="text-sm font-medium text-muted-foreground hover:text-blue-600 transition-colors">Sign in</Link>
+                        )}
                         <ThemeToggle />
-                        <Link href="/auth/register">
+                        <Link href={user ? "/dashboard" : "/auth/register"}>
                             <Button size="sm" className="bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20">
-                                Get Started
+                                {user ? "Go to Dashboard" : "Get Started"}
                             </Button>
                         </Link>
                     </div>
@@ -111,9 +117,13 @@ export default function LandingPage() {
                                 <Link href="/blog" onClick={() => setIsMenuOpen(false)} className="text-base font-medium">Blog</Link>
                                 <Link href="/error-codes" onClick={() => setIsMenuOpen(false)} className="text-base font-medium">Error Codes</Link>
                                 <Link href="/field-explorer" onClick={() => setIsMenuOpen(false)} className="text-base font-medium">Explorer</Link>
-                                <Link href="/auth/login" onClick={() => setIsMenuOpen(false)} className="text-base font-medium">Sign in</Link>
-                                <Link href="/auth/register" onClick={() => setIsMenuOpen(false)}>
-                                    <Button className="w-full bg-blue-600">Get Started Free</Button>
+                                {user ? (
+                                    <Link href="/dashboard" onClick={() => setIsMenuOpen(false)} className="text-base font-medium">Dashboard</Link>
+                                ) : (
+                                    <Link href="/auth/login" onClick={() => setIsMenuOpen(false)} className="text-base font-medium">Sign in</Link>
+                                )}
+                                <Link href={user ? "/dashboard" : "/auth/register"} onClick={() => setIsMenuOpen(false)}>
+                                    <Button className="w-full bg-blue-600">{user ? "Dashboard" : "Get Started Free"}</Button>
                                 </Link>
                             </div>
                         </motion.div>
@@ -142,9 +152,9 @@ export default function LandingPage() {
                                     Instant, validated conversion from legacy MT formats to modern ISO 20022 MX standards. Bank-grade security for global payments.
                                 </p>
                                 <div className="flex flex-wrap gap-4 mb-10">
-                                    <Link href="/auth/register">
+                                    <Link href={user ? "/dashboard/convert" : "/auth/register"}>
                                         <Button size="lg" className="bg-blue-600 hover:bg-blue-700 h-14 px-10 text-lg font-bold shadow-2xl shadow-blue-500/30">
-                                            Start Free
+                                            {user ? "Convert Now" : "Start Free"}
                                             <ArrowRight className="w-5 h-5 ml-2" />
                                         </Button>
                                     </Link>
@@ -286,9 +296,9 @@ export default function LandingPage() {
                         <p className="text-xl text-blue-100 mb-12 max-w-2xl mx-auto font-medium">
                             Join over 200+ financial institutions modernizing their payment messaging infrastructure today.
                         </p>
-                        <Link href="/auth/register">
+                        <Link href={user ? "/dashboard/convert" : "/auth/register"}>
                             <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 h-16 px-12 text-xl font-black rounded-2xl shadow-2xl">
-                                Create Free Account
+                                {user ? "Go to Dashboard" : "Create Free Account"}
                             </Button>
                         </Link>
                     </motion.div>

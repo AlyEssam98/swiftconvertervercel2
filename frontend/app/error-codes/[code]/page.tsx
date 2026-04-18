@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
 import { getErrorCode, getAllErrorCodes } from '@/lib/errorCodes';
 import { notFound } from 'next/navigation';
+import { ErrorCodeCTA } from '@/components/conversion/ErrorCodeCTA';
 
 interface Props {
   params: Promise<{ code: string }>;
@@ -83,15 +84,7 @@ export default async function ErrorCodePage({ params }: Props) {
 
           <hr className="my-12 border-gray-200" />
 
-          <div className="bg-blue-50 rounded-2xl p-8 text-center">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4 mt-0">Stop dealing with manual MT validations.</h3>
-            <p className="text-gray-600 mb-6">
-              Use SwiftMX Bridge to instantly and accurately convert your legacy SWIFT MT messages into CBPR+ compliant ISO 20022 XML formats without any validation headaches.
-            </p>
-            <Link href="/auth/register" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg transition-colors">
-              Try the Converter for Free
-            </Link>
-          </div>
+          <ErrorCodeCTA />
         </div>
       </article>
     </div>

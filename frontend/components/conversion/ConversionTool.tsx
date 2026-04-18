@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import api from '@/lib/api';
 import { Loader2, ArrowRightLeft, CheckCircle, Copy, Download, Upload, Trash2, X, AlertCircle, CreditCard, UserPlus } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 
 interface ConversionToolProps {
@@ -18,6 +19,7 @@ interface ConversionError {
 }
 
 export default function ConversionTool({ isDashboard = false, onConversionComplete }: ConversionToolProps) {
+    const { user } = useAuth();
     const [conversionType, setConversionType] = useState('MT103');
     const [input, setInput] = useState('');
     const [output, setOutput] = useState('');
@@ -292,7 +294,7 @@ export default function ConversionTool({ isDashboard = false, onConversionComple
                             <p className="text-gray-600 mb-6">{error.message}</p>
                             
                             {error.code === 'ANONYMOUS_LIMIT_REACHED' && (
-                                <Link href="/auth/register">
+                                <Link href={user ? "/dashboard/convert" : "/auth/register"}>
                                     <Button className="bg-blue-600 hover:bg-blue-700">
                                         <UserPlus className="w-4 h-4 mr-2" />
                                         Sign Up & Get 5 Free Credits
