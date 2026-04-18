@@ -1,4 +1,4 @@
-// File: D:\projects\swift\swift_MTMX\frontend\app\dashboard\credits\page.tsx
+// File: D:\projects\swift\GIT1.1\Frontend\swiftconvertervercel2\frontend\app\dashboard\credits\page.tsx
 import * as entry from '../../../../../app/dashboard/credits/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

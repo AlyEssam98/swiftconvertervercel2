@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { LayoutDashboard, RefreshCw, Settings, LogOut, Menu, X, ArrowRightLeft, CreditCard, BarChart3, FileText, MessageSquare, BookOpen, AlertCircle } from 'lucide-react';
+import { LayoutDashboard, RefreshCw, Settings, LogOut, Menu, X, ArrowRightLeft, CreditCard, BarChart3, FileText, MessageSquare, BookOpen, AlertCircle, Search } from 'lucide-react';
 
 export default function DashboardLayout({
     children,

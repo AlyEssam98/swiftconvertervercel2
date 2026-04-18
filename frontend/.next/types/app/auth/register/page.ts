@@ -1,4 +1,4 @@
-// File: D:\projects\swift\swift_MTMX\frontend\app\auth\register\page.tsx
+// File: D:\projects\swift\GIT1.1\Frontend\swiftconvertervercel2\frontend\app\auth\register\page.tsx
 import * as entry from '../../../../../app/auth/register/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
