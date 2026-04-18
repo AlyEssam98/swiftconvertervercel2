@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { LayoutDashboard, RefreshCw, Settings, LogOut, Menu, X, ArrowRightLeft, CreditCard, BarChart3, FileText, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, RefreshCw, Settings, LogOut, Menu, X, ArrowRightLeft, CreditCard, BarChart3, FileText, MessageSquare, BookOpen, AlertCircle } from 'lucide-react';
 
 export default function DashboardLayout({
     children,
@@ -44,6 +44,8 @@ export default function DashboardLayout({
         { href: '/dashboard/history', label: 'History', icon: FileText },
         { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
         { href: '/dashboard/credits', label: 'Credits', icon: CreditCard },
+        { href: '/blog', label: 'Blog', icon: BookOpen },
+        { href: '/error-codes', label: 'Error Codes', icon: AlertCircle },
         { href: '/dashboard/contact', label: 'Contact Us', icon: MessageSquare },
         { href: '/dashboard/settings', label: 'Settings', icon: Settings },
     ];
