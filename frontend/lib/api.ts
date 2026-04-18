@@ -45,5 +45,16 @@ api.interceptors.response.use(
     }
 );
 
+export const callHealthCheck = async () => {
+    try {
+        const response = await api.get('/api/v1/health');
+        console.log('Health check successful:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Health check failed:', error);
+        // Silently fail - don't throw or show user-facing errors
+    }
+};
+
 export default api;
 

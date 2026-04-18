@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { callHealthCheck } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/lib/api';
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,10 @@ import { Eye, EyeOff, Loader2, ArrowRightLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
+    useEffect(() => {
+        callHealthCheck();
+    }, []);
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { callHealthCheck } from '@/lib/api';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle, Zap, Shield, Clock, FileCode2, ArrowRightLeft, Globe } from 'lucide-react';
@@ -8,6 +9,10 @@ import { toast } from 'sonner';
 import ConversionTool from '@/components/conversion/ConversionTool';
 
 export default function LandingPage() {
+    useEffect(() => {
+        callHealthCheck();
+    }, []);
+
     return (
         <div className="min-h-screen bg-white">
             {/* Header */}
