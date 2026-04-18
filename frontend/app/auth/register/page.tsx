@@ -179,6 +179,17 @@ export default function RegisterPage() {
                             </div>
                             <p className="text-xs text-gray-500">Minimum 6 characters</p>
                         </div>
+                        <div className="flex items-start space-x-2 pt-2">
+                            <input
+                                type="checkbox"
+                                id="terms"
+                                required
+                                className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+                            />
+                            <Label htmlFor="terms" className="text-sm font-normal text-gray-600 leading-tight">
+                                I agree to the <Link href="/legal/terms-of-service" className="text-blue-600 hover:underline">Terms of Service</Link> and <Link href="/legal/privacy-policy" className="text-blue-600 hover:underline">Privacy Policy</Link>.
+                            </Label>
+                        </div>
                         {error && (
                             <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
                                 {error}

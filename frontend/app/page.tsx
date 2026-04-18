@@ -345,10 +345,16 @@ export default function LandingPage() {
                         </div>
                         <div>
                             <h4 className="text-white font-semibold mb-4">Product</h4>
-                            <ul className="space-y-2 text-sm">
-                                <li><Link href="/" className="hover:text-white">MT to MX Converter</Link></li>
+                            <ul className="space-y-2 text-sm text-gray-400">
                                 <li><Link href="/" className="hover:text-white">ISO 20022 Validator</Link></li>
                                 <li><Link href="/auth/register" className="hover:text-white">Pricing</Link></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 className="text-white font-semibold mb-4">Legal</h4>
+                            <ul className="space-y-2 text-sm text-gray-400">
+                                <li><Link href="/legal/terms-of-service" className="hover:text-white">Terms of Service</Link></li>
+                                <li><Link href="/legal/privacy-policy" className="hover:text-white">Privacy Policy</Link></li>
                             </ul>
                         </div>
                         <div>

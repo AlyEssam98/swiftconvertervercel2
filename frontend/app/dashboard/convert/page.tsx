@@ -213,6 +213,15 @@ export default function ConvertPage() {
                         )}
                     </Button>
                 </div>
+                
+                {/* Legal Disclaimer */}
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4 text-center">
+                    <p className="text-amber-800 text-xs flex items-center justify-center m-0">
+                        <AlertCircle className="w-3.5 h-3.5 mr-1 flex-shrink-0" />
+                        <span className="font-semibold mr-1">Legal Disclaimer:</span>
+                        Output is provided "as-is" for development/testing purposes. User assumes full responsibility for network validation.
+                    </p>
+                </div>
             </div>
 
             {/* Output Modal */}
