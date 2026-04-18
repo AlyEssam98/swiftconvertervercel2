@@ -80,18 +80,27 @@ export const metadata: Metadata = {
     },
 };
 
+import { ThemeProvider } from "@/components/ThemeProvider";
+
 export default function RootLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en" className={inter.variable}>
-            <body className="min-h-screen antialiased">
-                <AuthProvider>
-                    {children}
-                    <Toaster />
-                </AuthProvider>
+        <html lang="en" className={inter.variable} suppressHydrationWarning>
+            <body className="min-h-screen antialiased transition-colors duration-300">
+                <ThemeProvider
+                    attribute="class"
+                    defaultTheme="light"
+                    enableSystem
+                    disableTransitionOnChange
+                >
+                    <AuthProvider>
+                        {children}
+                        <Toaster />
+                    </AuthProvider>
+                </ThemeProvider>
             </body>
         </html>
     );

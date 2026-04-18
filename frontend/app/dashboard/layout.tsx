@@ -46,6 +46,7 @@ export default function DashboardLayout({
         { href: '/dashboard/credits', label: 'Credits', icon: CreditCard },
         { href: '/blog', label: 'Blog', icon: BookOpen },
         { href: '/error-codes', label: 'Error Codes', icon: AlertCircle },
+        { href: '/field-explorer', label: 'Field Explorer', icon: Search },
         { href: '/dashboard/contact', label: 'Contact Us', icon: MessageSquare },
         { href: '/dashboard/settings', label: 'Settings', icon: Settings },
     ];

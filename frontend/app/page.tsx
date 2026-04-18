@@ -4,17 +4,36 @@ import { useState, useEffect } from 'react';
 import { callHealthCheck } from '@/lib/api';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CheckCircle, Zap, Shield, Clock, FileCode2, ArrowRightLeft, Globe } from 'lucide-react';
+import { ArrowRight, CheckCircle, Zap, Shield, Clock, FileCode2, ArrowRightLeft, Globe, Menu, X } from 'lucide-react';
 import { toast } from 'sonner';
 import ConversionTool from '@/components/conversion/ConversionTool';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function LandingPage() {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
     useEffect(() => {
         callHealthCheck();
     }, []);
 
+    const fadeInUp = {
+        initial: { opacity: 0, y: 30 },
+        whileInView: { opacity: 1, y: 0 },
+        viewport: { once: true },
+        transition: { duration: 0.8, ease: "easeOut" }
+    };
+
+    const staggerContainer = {
+        animate: {
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    };
+
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
@@ -32,347 +51,314 @@ export default function LandingPage() {
                                     "price": "0",
                                     "priceCurrency": "USD"
                                 }
-                            },
-                            {
-                                "@type": "FAQPage",
-                                "mainEntity": [
-                                    {
-                                        "@type": "Question",
-                                        "name": "What is SWIFT MT to MX conversion?",
-                                        "acceptedAnswer": {
-                                            "@type": "Answer",
-                                            "text": "SWIFT MT to MX conversion is the process of translating legacy FIN messages (like MT103) into the modern ISO 20022 XML format (like pacs.008) to ensure global payment compliance."
-                                        }
-                                    },
-                                    {
-                                        "@type": "Question",
-                                        "name": "Is the conversion CBPR+ compliant?",
-                                        "acceptedAnswer": {
-                                            "@type": "Answer",
-                                            "text": "Yes, SwiftMX Bridge validates all output against official ISO 20022 XML schemas and CBPR+ guidelines."
-                                        }
-                                    }
-                                ]
                             }
                         ]
                     })
                 }}
             />
+            
             {/* Header */}
-            <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+            <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
                 <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
-                    <Link href="/" className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
+                    <Link href="/" className="flex items-center space-x-3 group">
+                        <motion.div 
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25"
+                        >
                             <ArrowRightLeft className="w-5 h-5 text-white" />
-                        </div>
+                        </motion.div>
                         <div className="flex flex-col">
-                            <span className="text-lg font-bold text-gray-900">SwiftMX Bridge</span>
-                            <span className="text-xs text-gray-500">MT to MX Translation</span>
+                            <span className="text-lg font-bold tracking-tight">SwiftMX Bridge</span>
+                            <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Enterprise Translation</span>
                         </div>
                     </Link>
-                    <div className="flex items-center space-x-6">
-                        <div className="hidden md:flex items-center space-x-6 mr-4">
-                            <Link href="/blog" className="text-gray-600 hover:text-gray-900 text-sm font-medium">Blog</Link>
-                            <Link href="/error-codes" className="text-gray-600 hover:text-gray-900 text-sm font-medium">Error Codes</Link>
-                        </div>
-                        <Link href="/auth/login" className="text-gray-600 hover:text-gray-900 text-sm font-medium">
-                            Sign in
-                        </Link>
+
+                    {/* Desktop Nav */}
+                    <div className="hidden md:flex items-center space-x-8">
+                        <Link href="/blog" className="text-sm font-medium text-muted-foreground hover:text-blue-600 transition-colors">Blog</Link>
+                        <Link href="/error-codes" className="text-sm font-medium text-muted-foreground hover:text-blue-600 transition-colors">Error Codes</Link>
+                        <Link href="/field-explorer" className="text-sm font-medium text-muted-foreground hover:text-blue-600 transition-colors">Explorer</Link>
+                        <div className="h-4 w-px bg-border mx-2" />
+                        <Link href="/auth/login" className="text-sm font-medium text-muted-foreground hover:text-blue-600 transition-colors">Sign in</Link>
+                        <ThemeToggle />
                         <Link href="/auth/register">
-                            <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                                Get Started Free
+                            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20">
+                                Get Started
                             </Button>
                         </Link>
                     </div>
+
+                    {/* Mobile Menu Toggle */}
+                    <div className="md:hidden flex items-center space-x-4">
+                        <ThemeToggle />
+                        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-foreground">
+                            {isMenuOpen ? <X /> : <Menu />}
+                        </button>
+                    </div>
                 </nav>
+
+                {/* Mobile Nav Menu */}
+                <AnimatePresence>
+                    {isMenuOpen && (
+                        <motion.div 
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="md:hidden bg-background border-b border-border overflow-hidden"
+                        >
+                            <div className="flex flex-col p-4 space-y-4">
+                                <Link href="/blog" onClick={() => setIsMenuOpen(false)} className="text-base font-medium">Blog</Link>
+                                <Link href="/error-codes" onClick={() => setIsMenuOpen(false)} className="text-base font-medium">Error Codes</Link>
+                                <Link href="/field-explorer" onClick={() => setIsMenuOpen(false)} className="text-base font-medium">Explorer</Link>
+                                <Link href="/auth/login" onClick={() => setIsMenuOpen(false)} className="text-base font-medium">Sign in</Link>
+                                <Link href="/auth/register" onClick={() => setIsMenuOpen(false)}>
+                                    <Button className="w-full bg-blue-600">Get Started Free</Button>
+                                </Link>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </header>
 
             {/* Hero Section */}
-            <section className="container mx-auto px-4 pt-20 pb-16">
-                <div className="max-w-5xl mx-auto">
-                    <div className="grid lg:grid-cols-2 gap-12 items-center">
-                        <div>
-                            <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-medium mb-6">
-                                <Zap className="w-4 h-4 mr-1" />
-                                Instant MT to MX Conversion
-                            </div>
-                            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-                                Seamless SWIFT MT to MX Conversion for
-                                <span className="text-blue-600"> Modern Banking</span>
-                            </h1>
-                            <p className="text-lg text-gray-600 mb-8">
-                                Don&apos;t let legacy systems stall your ISO 20022 migration. SwiftMX Bridge provides an instant, secure, and validated translation layer for your financial messaging. Whether you&apos;re handling MT103 customer transfers or MT940 statements, our engine ensures 100% compliance with CBPR+ and High-Value Payment System (HVPS+) standards.
+            <section className="relative overflow-hidden mesh-gradient border-b border-border">
+                <div className="container mx-auto px-4 pt-24 pb-32">
+                    <div className="max-w-6xl mx-auto">
+                        <div className="grid lg:grid-cols-2 gap-16 items-center">
+                            <motion.div 
+                                initial={{ opacity: 0, x: -30 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.8 }}
+                            >
+                                <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium mb-6">
+                                    <Zap className="w-4 h-4 mr-1 animate-pulse" />
+                                    ISO 20022 Migration Ready
+                                </div>
+                                <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-[1.1]">
+                                    Enterprise <span className="text-blue-600 dark:text-blue-400">SWIFT</span> Translation Layer
+                                </h1>
+                                <p className="text-xl text-muted-foreground mb-10 leading-relaxed max-w-xl">
+                                    Instant, validated conversion from legacy MT formats to modern ISO 20022 MX standards. Bank-grade security for global payments.
+                                </p>
+                                <div className="flex flex-wrap gap-4 mb-10">
+                                    <Link href="/auth/register">
+                                        <Button size="lg" className="bg-blue-600 hover:bg-blue-700 h-14 px-10 text-lg font-bold shadow-2xl shadow-blue-500/30">
+                                            Start Free
+                                            <ArrowRight className="w-5 h-5 ml-2" />
+                                        </Button>
+                                    </Link>
+                                    <Link href="#try-it">
+                                        <Button variant="outline" size="lg" className="h-14 px-10 text-lg font-bold bg-background/50 backdrop-blur-sm border-2">
+                                            Live Demo
+                                        </Button>
+                                    </Link>
+                                </div>
+                                <div className="flex flex-wrap gap-6 text-sm font-medium text-muted-foreground/80">
+                                    <span className="flex items-center"><CheckCircle className="w-4 h-4 mr-2 text-green-500" /> No CC Required</span>
+                                    <span className="flex items-center"><CheckCircle className="w-4 h-4 mr-2 text-green-500" /> CBPR+ Compliant</span>
+                                    <span className="flex items-center"><CheckCircle className="w-4 h-4 mr-2 text-green-500" /> AES-256 Secure</span>
+                                </div>
+                            </motion.div>
+                            
+                            {/* Hero Visual */}
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 1, delay: 0.2 }}
+                                className="hidden lg:block relative"
+                            >
+                                <div className="absolute inset-0 bg-blue-500/10 dark:bg-blue-500/20 rounded-[3rem] blur-[120px]"></div>
+                                <div className="relative glass-morphism rounded-3xl p-8 border border-white/40 dark:border-white/5 shadow-2xl overflow-hidden group">
+                                    <div className="absolute top-0 right-0 p-4 opacity-50">
+                                        <FileCode2 className="w-32 h-32 text-blue-500/10" />
+                                    </div>
+                                    <div className="flex items-center space-x-2 mb-6">
+                                        <div className="w-3 h-3 rounded-full bg-red-400/80"></div>
+                                        <div className="w-3 h-3 rounded-full bg-yellow-400/80"></div>
+                                        <div className="w-3 h-3 rounded-full bg-green-400/80"></div>
+                                        <span className="ml-2 text-xs font-mono text-muted-foreground">mt103_to_pacs008.sh</span>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <div className="bg-slate-950 rounded-xl p-5 font-mono text-xs text-blue-100/90 shadow-inner">
+                                            <div className="text-blue-400/80 mb-1">{`{1:F01BANKBEBBAXXX0000000000}`}</div>
+                                            <div className="text-green-400/80 mb-3">{`{2:I103BANKBEBBXXXXN}`}</div>
+                                            <div className="pl-4 border-l border-blue-500/30 space-y-1">
+                                                <div>:20:REF/PAY/2026/001</div>
+                                                <div>:32A:260418USD25000,00</div>
+                                                <div className="text-blue-400 font-bold">:50K:ALEX CORPORATE INC.</div>
+                                            </div>
+                                        </div>
+                                        <div className="flex justify-center">
+                                            <motion.div 
+                                                animate={{ y: [0, 5, 0] }}
+                                                transition={{ repeat: Infinity, duration: 2 }}
+                                                className="bg-blue-600/10 p-2 rounded-full border border-blue-500/20"
+                                            >
+                                                <ArrowRightLeft className="w-6 h-6 text-blue-500" />
+                                            </motion.div>
+                                        </div>
+                                        <div className="bg-slate-900/50 rounded-xl p-5 font-mono text-xs text-emerald-400/80 border border-emerald-500/10">
+                                            <div className="text-muted-foreground/50 mb-2">{`<Document xmlns="urn:iso:std:pacs.008">`}</div>
+                                            <div className="pl-4 space-y-1">
+                                                <div className="text-emerald-300 font-bold">{`<InstrId>REF/PAY/2026/001</InstrId>`}</div>
+                                                <div>{`<IntrBkSttlmAmt Ccy="USD">25000.00</IntrBkSttlmAmt>`}</div>
+                                                <div className="text-muted-foreground/30">...</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Converter Tool Section */}
+            <section id="try-it" className="py-32 bg-background">
+                <div className="container mx-auto px-4">
+                    <motion.div 
+                        {...fadeInUp}
+                        className="max-w-4xl mx-auto"
+                    >
+                        <div className="text-center mb-16">
+                            <h2 className="text-3xl md:text-5xl font-bold mb-6">Live Sandbox</h2>
+                            <p className="text-lg text-muted-foreground max-w-2xl mx-auto italic">
+                                &ldquo;Experience the precision of our transformation engine. No strings attached.&rdquo;
                             </p>
-                            <div className="flex flex-wrap gap-4 mb-8">
-                                <Link href="/auth/register">
-                                    <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-                                        Start Converting Free
-                                        <ArrowRight className="w-4 h-4 ml-2" />
-                                    </Button>
-                                </Link>
-                                <Link href="#try-it">
-                                    <Button variant="outline" size="lg">
-                                        Try Without Signup
-                                    </Button>
-                                </Link>
-                            </div>
-                            <div className="flex flex-wrap gap-6 text-sm text-gray-500">
-                                <span className="flex items-center"><CheckCircle className="w-4 h-4 mr-2 text-green-500" /> No credit card required</span>
-                                <span className="flex items-center"><CheckCircle className="w-4 h-4 mr-2 text-green-500" /> 5 free conversions</span>
-                                <span className="flex items-center"><CheckCircle className="w-4 h-4 mr-2 text-green-500" /> Bank-grade security</span>
-                            </div>
                         </div>
-                        
-                        {/* Hero Visual */}
-                        <div className="hidden lg:block">
-                            <div className="relative">
-                                <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-3xl blur-3xl opacity-20"></div>
-                                <div className="relative bg-white rounded-2xl border border-gray-200 shadow-xl p-6">
-                                    <div className="flex items-center space-x-3 mb-4">
-                                        <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                                        <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                                        <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                        <div className="glass-morphism rounded-[2rem] overflow-hidden border border-border shadow-2xl">
+                            <div className="bg-muted/50 px-8 py-5 border-b border-border flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                    <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
+                                        <FileCode2 className="w-4 h-4 text-white" />
                                     </div>
-                                    <div className="bg-gray-900 rounded-lg p-4 font-mono text-xs text-gray-300 overflow-hidden">
-                                        <div className="text-blue-400 mb-2">{`{1:F01BANKBEBBAXXX0000000000}`}</div>
-                                        <div className="text-green-400 mb-2">{`{2:I103BANKBEBBXXXXN}`}</div>
-                                        <div className="text-gray-400 mb-4">{`{4:`}</div>
-                                        <div className="pl-4 space-y-1">
-                                            <div>:20:REF123456789</div>
-                                            <div>:23B:CRED</div>
-                                            <div>:32A:240115USD1000,00</div>
-                                            <div>:50K:/123456789</div>
-                                            <div className="text-gray-500">...</div>
-                                        </div>
-                                    </div>
-                                    <div className="flex justify-center my-4">
-                                        <div className="flex items-center space-x-2 text-blue-600">
-                                            <ArrowRightLeft className="w-5 h-5" />
-                                            <span className="text-sm font-medium">Converting...</span>
-                                        </div>
-                                    </div>
-                                    <div className="bg-gray-50 rounded-lg p-4 font-mono text-xs text-gray-600">
-                                        <div className="text-purple-600 mb-2">{`<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.02">`}</div>
-                                        <div className="pl-4 space-y-1">
-                                            <div>{`<CdtTrfTxInf>`}</div>
-                                            <div className="pl-4">{`<PmtId>`}</div>
-                                            <div className="pl-8 text-blue-600">{`<EndToEndId>REF123456789</EndToEndId>`}</div>
-                                            <div className="pl-4">{`</PmtId>`}</div>
-                                            <div className="text-gray-400">...</div>
-                                        </div>
-                                    </div>
+                                    <span className="font-bold tracking-tight">MT ↔ MX Processor</span>
+                                </div>
+                                <div className="flex space-x-1.5">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-border" />
+                                    <div className="w-2.5 h-2.5 rounded-full bg-border" />
+                                    <div className="w-2.5 h-2.5 rounded-full bg-border" />
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Converter Tool */}
-            <section id="try-it" className="container mx-auto px-4 pb-20">
-                <div className="max-w-4xl mx-auto">
-                    <div className="text-center mb-8">
-                        <h2 className="text-2xl font-bold text-gray-900 mb-2">Bridging the Gap to ISO 20022 Compliance</h2>
-                        <p className="text-gray-500">Try our free conversion tool below. No signup required.</p>
-                    </div>
-                    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-                        <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-2">
-                                    <FileCode2 className="w-5 h-5 text-blue-600" />
-                                    <span className="font-medium text-gray-900">MT to MX Converter</span>
-                                </div>
-                                <span className="text-sm text-gray-500">1 credit = 1 conversion</span>
+                            <div className="p-8">
+                                <ConversionTool />
                             </div>
                         </div>
-                        <div className="p-6">
-                            <ConversionTool />
-                        </div>
-                    </div>
+                    </motion.div>
                 </div>
             </section>
 
-            {/* Supported Formats */}
-            <section className="bg-gray-50 py-20 border-y border-gray-200">
+            {/* Features Grid */}
+            <section className="py-24 bg-muted/30 border-y border-border">
                 <div className="container mx-auto px-4">
-                    <div className="text-center mb-12">
-                        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-                            Supported Message Types
-                        </h2>
-                        <p className="text-gray-600 max-w-2xl mx-auto">Convert between legacy MT formats and modern ISO 20022 MX standards</p>
-                    </div>
-                    <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-                        <FormatCard
-                            mt="MT103"
-                            mx="pacs.008"
-                            title="Customer Credit Transfer"
-                            description="Single customer-to-customer payment instruction"
-                        />
-                        <FormatCard
-                            mt="MT202"
-                            mx="pacs.009"
-                            title="Financial Institution Transfer"
-                            description="Bank-to-bank payment instruction"
-                        />
-                        <FormatCard
-                            mt="MT940"
-                            mx="camt.053"
-                            title="Account Statement"
-                            description="Bank account statement and balance report"
-                        />
-                    </div>
-                </div>
-            </section>
-
-            {/* Features */}
-            <section className="py-16">
-                <div className="container mx-auto px-4">
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
                         <FeatureItem
-                            icon={<Clock className="w-5 h-5 text-blue-600" />}
-                            title="Instant Conversion"
-                            description="Convert messages in milliseconds with our optimized engine"
+                            icon={<Clock className="w-6 h-6 text-blue-500" />}
+                            title="Zero Latency"
+                            description="Real-time translation optimized for high-frequency payment rails."
                         />
                         <FeatureItem
-                            icon={<Shield className="w-5 h-5 text-blue-600" />}
-                            title="Secure & Private"
-                            description="AES-256 encryption, TLS 1.3, no data retention"
+                            icon={<Shield className="w-6 h-6 text-emerald-500" />}
+                            title="Bank-Grade"
+                            description="End-to-end encryption with ephemeral memory processing."
                         />
                         <FeatureItem
-                            icon={<FileCode2 className="w-5 h-5 text-blue-600" />}
-                            title="ISO 20022 Compliant"
-                            description="Full validation against official XSD schemas"
+                            icon={<FileCode2 className="w-6 h-6 text-indigo-500" />}
+                            title="Schema Validated"
+                            description="Strict XSD & CBPR+ rule enforcement for NACK-free transfers."
                         />
                         <FeatureItem
-                            icon={<Globe className="w-5 h-5 text-blue-600" />}
-                            title="SWIFT Ready"
-                            description="Compatible with SWIFT network and gpi tracking"
+                            icon={<Globe className="w-6 h-6 text-amber-500" />}
+                            title="Multi-Standard"
+                            description="Supporting CHAPS, Fedwire, TARGET2, and global SWIFT network."
                         />
                     </div>
                 </div>
             </section>
 
-            {/* How It Works */}
-            <section className="bg-gray-50 py-16 border-y border-gray-200">
-                <div className="container mx-auto px-4">
-                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-12">
-                        How It Works
-                    </h2>
-                    <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-                        <Step number="1" title="Paste Your Message" description="Upload or paste your SWIFT MT or ISO 20022 MX message" />
-                        <Step number="2" title="Select Type" description="Choose the message type (MT103, MT202, MT940, etc.)" />
-                        <Step number="3" title="Get Result" description="Instantly receive your converted, validated message" />
-                    </div>
+            {/* CTA Section */}
+            <section className="py-32 relative overflow-hidden bg-blue-600">
+                <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
+                <div className="container mx-auto px-4 relative z-10 text-center text-white">
+                    <motion.div {...fadeInUp}>
+                        <h2 className="text-4xl md:text-6xl font-black mb-8">Ready to Bridge the Gap?</h2>
+                        <p className="text-xl text-blue-100 mb-12 max-w-2xl mx-auto font-medium">
+                            Join over 200+ financial institutions modernizing their payment messaging infrastructure today.
+                        </p>
+                        <Link href="/auth/register">
+                            <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 h-16 px-12 text-xl font-black rounded-2xl shadow-2xl">
+                                Create Free Account
+                            </Button>
+                        </Link>
+                    </motion.div>
                 </div>
             </section>
 
-            {/* Pricing Preview */}
-            <section className="py-16">
+            {/* FAQ */}
+            <section className="py-32 bg-background">
                 <div className="container mx-auto px-4">
-                    <div className="max-w-3xl mx-auto text-center">
-                        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-                            Simple, Credit-Based Pricing
-                        </h2>
-                        <p className="text-gray-600 mb-8">Pay only for what you use. No subscriptions, no hidden fees.</p>
-                        <div className="bg-white rounded-xl border border-gray-200 p-8">
-                            <div className="flex justify-center items-baseline space-x-2 mb-6">
-                                <span className="text-4xl font-bold text-gray-900">$0.10</span>
-                                <span className="text-gray-500">per conversion</span>
-                            </div>
-                            <ul className="text-left max-w-xs mx-auto space-y-3 mb-8">
-                                <li className="flex items-center text-gray-600">
-                                    <CheckCircle className="w-5 h-5 mr-3 text-green-500" />
-                                    5 free credits on signup
-                                </li>
-                                <li className="flex items-center text-gray-600">
-                                    <CheckCircle className="w-5 h-5 mr-3 text-green-500" />
-                                    No expiration on credits
-                                </li>
-                                <li className="flex items-center text-gray-600">
-                                    <CheckCircle className="w-5 h-5 mr-3 text-green-500" />
-                                    Volume discounts available
-                                </li>
-                            </ul>
-                            <Link href="/auth/register">
-                                <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-                                    Start Free <ArrowRight className="w-4 h-4 ml-2" />
-                                </Button>
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* FAQ Section for SEO */}
-            <section className="bg-gray-50 py-16 border-t border-gray-200">
-                <div className="container mx-auto px-4">
-                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-12">
-                        Frequently Asked Questions
-                    </h2>
-                    <div className="max-w-3xl mx-auto space-y-6">
+                    <h2 className="text-4xl font-bold text-center mb-20">Frequently Asked</h2>
+                    <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
                         <FAQItem
-                            question="What is MT103 to MX conversion?"
-                            answer="MT103 to MX conversion transforms SWIFT MT103 customer credit transfer messages into ISO 20022 pacs.008 format. This enables financial institutions to transition from legacy SWIFT FIN messaging to the modern ISO 20022 standard while maintaining backward compatibility."
+                            question="Is the conversion CBPR+ compliant?"
+                            answer="Absolutely. Every message is validated against the latest SWIFT CBPR+ usage guidelines and official ISO 20022 schemas."
                         />
                         <FAQItem
-                            question="How does the ISO 20022 validator work?"
-                            answer="Our ISO 20022 validator checks your MX messages against official XSD schemas from ISO. It validates structure, data types, and business rules to ensure your messages comply with SWIFT and ISO standards before transmission."
+                            question="How do you handle data privacy?"
+                            answer="We use Ephemeral Processing. Messages are translated in-memory and immediately destroyed. We never store financial payloads."
                         />
                         <FAQItem
-                            question="What is pacs.008 format?"
-                            answer="pacs.008 is an ISO 20022 message type for 'FI to FI Customer Credit Transfer'. It's the MX equivalent of MT103, used for single customer-to-customer payment instructions between financial institutions."
+                            question="Can I integrate this into my core?"
+                            answer="Yes, we provide a robust REST API for enterprise customers to plug directly into their core banking systems."
                         />
                         <FAQItem
-                            question="Is my data secure during conversion?"
-                            answer="Yes. We use AES-256 encryption at rest, TLS 1.3 for data in transit, and do not store your messages after conversion. All processing happens in secure, isolated environments with bank-grade security measures."
+                            question="What message types do you support?"
+                            answer="We currently support MT103, MT202, MT202COV, MT940, and their MX equivalents (pacs, camt)."
                         />
                     </div>
                 </div>
             </section>
 
             {/* Footer */}
-            <footer className="bg-gray-900 text-gray-400 py-12">
+            <footer className="bg-slate-950 text-slate-400 py-24 border-t border-white/5">
                 <div className="container mx-auto px-4">
-                    <div className="grid md:grid-cols-4 gap-8 mb-8">
-                        <div>
-                            <div className="flex items-center space-x-2 mb-4">
-                                <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                                    <ArrowRightLeft className="w-5 h-5 text-white" />
+                    <div className="grid md:grid-cols-4 gap-12 mb-16">
+                        <div className="col-span-1 md:col-span-1">
+                            <Link href="/" className="flex items-center space-x-3 mb-8">
+                                <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
+                                    <ArrowRightLeft className="w-6 h-6 text-white" />
                                 </div>
-                                <span className="text-lg font-semibold text-white">SwiftMX Bridge</span>
-                            </div>
-                            <p className="text-sm">Professional MT to MX conversion tool for financial institutions.</p>
+                                <span className="text-xl font-bold text-white tracking-tight">SwiftMX Bridge</span>
+                            </Link>
+                            <p className="text-sm leading-relaxed">
+                                Professional financial message transformation for the ISO 20022 era. Global, secure, and instant.
+                            </p>
                         </div>
                         <div>
-                            <h4 className="text-white font-semibold mb-4">Product</h4>
-                            <ul className="space-y-2 text-sm text-gray-400">
-                                <li><Link href="/" className="hover:text-white">ISO 20022 Validator</Link></li>
-                                <li><Link href="/auth/register" className="hover:text-white">Pricing</Link></li>
+                            <h4 className="text-white font-bold mb-6 text-sm uppercase tracking-widest">Solutions</h4>
+                            <ul className="space-y-4 text-sm">
+                                <li><Link href="/" className="hover:text-blue-400 transition-colors">MT to MX Converter</Link></li>
+                                <li><Link href="/" className="hover:text-blue-400 transition-colors">ISO 20022 Validator</Link></li>
+                                <li><Link href="/field-explorer" className="hover:text-blue-400 transition-colors">Field Explorer</Link></li>
                             </ul>
                         </div>
                         <div>
-                            <h4 className="text-white font-semibold mb-4">Legal</h4>
-                            <ul className="space-y-2 text-sm text-gray-400">
-                                <li><Link href="/legal/terms-of-service" className="hover:text-white">Terms of Service</Link></li>
-                                <li><Link href="/legal/privacy-policy" className="hover:text-white">Privacy Policy</Link></li>
+                            <h4 className="text-white font-bold mb-6 text-sm uppercase tracking-widest">Support</h4>
+                            <ul className="space-y-4 text-sm">
+                                <li><Link href="/blog" className="hover:text-blue-400 transition-colors">Technical Blog</Link></li>
+                                <li><Link href="/error-codes" className="hover:text-blue-400 transition-colors">Error Database</Link></li>
+                                <li><Link href="/legal/terms-of-service" className="hover:text-blue-400 transition-colors">Terms of Service</Link></li>
+                                <li><Link href="/legal/privacy-policy" className="hover:text-blue-400 transition-colors">Privacy Policy</Link></li>
                             </ul>
                         </div>
                         <div>
-                            <h4 className="text-white font-semibold mb-4">Message Types</h4>
-                            <ul className="space-y-2 text-sm">
-                                <li><Link href="/" className="hover:text-white">MT103 to pacs.008</Link></li>
-                                <li><Link href="/" className="hover:text-white">MT202 to pacs.009</Link></li>
-                                <li><Link href="/" className="hover:text-white">MT940 to camt.053</Link></li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="text-white font-semibold mb-4">Feedback</h4>
-                            <p className="text-sm mb-3">Have suggestions? We&apos;d love to hear from you.</p>
+                            <h4 className="text-white font-bold mb-6 text-sm uppercase tracking-widest">Feedback</h4>
                             <FeedbackForm />
                         </div>
                     </div>
-                    <div className="border-t border-gray-800 pt-8 text-center text-sm">
-                        <p>© 2026 SwiftMX Bridge. Professional MT to MX online conversion, MT103 to MX, swift converter online for financial messaging. All rights reserved.</p>
+                    <div className="border-t border-white/5 pt-12 text-center text-xs">
+                        <p>© 2026 SwiftMX Bridge. All rights reserved. Bank-grade MT103 to pacs.008 transformation.</p>
                     </div>
                 </div>
             </footer>
@@ -380,49 +366,28 @@ export default function LandingPage() {
     );
 }
 
-function FormatCard({ mt, mx, title, description }: { mt: string; mx: string; title: string; description: string }) {
-    return (
-        <div className="bg-white rounded-xl border border-gray-200 p-6 hover:border-blue-300 transition-colors">
-            <div className="flex items-center justify-between mb-4">
-                <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">{mt}</span>
-                <ArrowRight className="w-4 h-4 text-gray-400" />
-                <span className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium">{mx}</span>
-            </div>
-            <h3 className="font-semibold text-gray-900 mb-2">{title}</h3>
-            <p className="text-sm text-gray-500">{description}</p>
-        </div>
-    );
-}
-
 function FeatureItem({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
     return (
-        <div className="text-center p-4">
-            <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-4">
-                {icon}
+        <motion.div 
+            whileHover={{ y: -10 }}
+            className="p-8 rounded-3xl bg-background border border-border shadow-sm hover:shadow-2xl transition-all duration-300 group"
+        >
+            <div className="w-14 h-14 bg-muted rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors duration-300">
+                <div className="group-hover:text-white transition-colors duration-300">
+                    {icon}
+                </div>
             </div>
-            <h3 className="font-semibold text-gray-900 mb-2">{title}</h3>
-            <p className="text-sm text-gray-500">{description}</p>
-        </div>
-    );
-}
-
-function Step({ number, title, description }: { number: string; title: string; description: string }) {
-    return (
-        <div className="text-center">
-            <div className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 font-semibold">
-                {number}
-            </div>
-            <h3 className="font-semibold text-gray-900 mb-2">{title}</h3>
-            <p className="text-sm text-gray-500">{description}</p>
-        </div>
+            <h3 className="text-xl font-bold mb-3">{title}</h3>
+            <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
+        </motion.div>
     );
 }
 
 function FAQItem({ question, answer }: { question: string; answer: string }) {
     return (
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="font-semibold text-gray-900 mb-2">{question}</h3>
-            <p className="text-gray-600 text-sm">{answer}</p>
+        <div className="p-8 rounded-3xl bg-muted/30 border border-border hover:border-blue-500/30 transition-colors">
+            <h3 className="text-lg font-bold mb-3">{question}</h3>
+            <p className="text-muted-foreground text-sm leading-relaxed">{answer}</p>
         </div>
     );
 }
@@ -442,43 +407,27 @@ function FeedbackForm() {
             await api.post('/api/v1/feedback', { message: message.trim() });
             setSubmitted(true);
             setMessage('');
-            toast.success('Thank you! Your feedback has been sent to our support team.');
+            toast.success('Feedback sent!');
         } catch (err) {
-            toast.error('Failed to send feedback. Please try again later.');
-            console.error('Feedback submission error:', err);
+            toast.error('Failed to send feedback.');
         } finally {
             setSubmitting(false);
         }
     };
 
-    if (submitted) {
-        return (
-            <div className="text-sm text-green-400">
-                <CheckCircle className="w-4 h-4 inline mr-1" />
-                Thank you for your feedback!
-            </div>
-        );
-    }
+    if (submitted) return <p className="text-emerald-500 text-sm font-medium">Thank you for your feedback!</p>;
 
     return (
-        <form className="space-y-3" onSubmit={handleSubmit}>
-            <textarea
+        <form onSubmit={handleSubmit} className="space-y-3">
+            <textarea 
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Share your thoughts..."
-                className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none"
-                rows={3}
-                minLength={10}
-                maxLength={5000}
-                required
+                className="w-full h-24 bg-slate-900 border border-white/10 rounded-xl p-3 text-xs text-white focus:ring-1 focus:ring-blue-500 outline-none"
             />
-            <button
-                type="submit"
-                disabled={submitting || message.length < 10}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white text-sm rounded-lg transition-colors"
-            >
+            <Button size="sm" disabled={submitting} className="w-full bg-blue-600 text-xs">
                 {submitting ? 'Sending...' : 'Send Feedback'}
-            </button>
+            </Button>
         </form>
     );
 }

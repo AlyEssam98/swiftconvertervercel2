@@ -62,15 +62,35 @@
 
 @layer utilities {
     .gradient-text {
-        @apply bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent;
+        @apply bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent;
     }
 
     .glass {
         @apply bg-white/10 backdrop-blur-lg border border-white/20;
     }
 
+    .glass-morphism {
+        @apply backdrop-blur-md bg-white/70 dark:bg-black/70 border border-white/20 dark:border-white/10 shadow-xl;
+    }
+    
+    .mesh-gradient {
+        background-color: #ffffff;
+        background-image: 
+            radial-gradient(at 0% 0%, hsla(221,100%,94%,1) 0, transparent 50%), 
+            radial-gradient(at 50% 0%, hsla(225,100%,92%,1) 0, transparent 50%), 
+            radial-gradient(at 100% 0%, hsla(227,100%,94%,1) 0, transparent 50%);
+    }
+
+    .dark .mesh-gradient {
+        background-color: #020617;
+        background-image: 
+            radial-gradient(at 0% 0%, hsla(221,45%,12%,1) 0, transparent 50%), 
+            radial-gradient(at 50% 0%, hsla(225,45%,10%,1) 0, transparent 50%), 
+            radial-gradient(at 100% 0%, hsla(227,45%,12%,1) 0, transparent 50%);
+    }
+
     .card-hover {
-        @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+        @apply transition-all duration-300 hover:shadow-2xl hover:-translate-y-2;
     }
 }
 
