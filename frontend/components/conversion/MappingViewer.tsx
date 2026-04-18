@@ -6,7 +6,7 @@ import { ChevronRight, Code, Info, FileText } from 'lucide-react';
 import Link from 'next/link';
 
 export default function MappingViewer() {
-  const [selectedTag, setSelectedTag] = useState<FieldMapping>(mt103Mappings[0]);
+  const [selectedTag, setSelectedTag] = useState(mt103Mappings[0] as FieldMapping);
 
   return (
     <div className="grid lg:grid-cols-12 gap-8 items-start">
