@@ -228,8 +228,31 @@ export default function LoginPage() {
                             </div>
                         </div>
                         {error && (
-                            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
-                                {error}
+                            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm flex flex-col gap-2">
+                                <span>{error}</span>
+                                {error.includes('verify your email') && (
+                                    <Button 
+                                        type="button" 
+                                        variant="outline" 
+                                        size="sm"
+                                        onClick={async () => {
+                                            if (!email) return;
+                                            try {
+                                                const res = await api.post('/api/v1/auth/resend-verification', { email });
+                                                setError('Verification email sent! Please check your inbox.');
+                                            } catch (err: any) {
+                                                if (err.response?.status === 429 || err.response?.data?.message?.includes('wait')) {
+                                                    setError('Please wait before requesting another email.');
+                                                } else {
+                                                    setError('Failed to resend. Please try again later.');
+                                                }
+                                            }
+                                        }}
+                                        className="w-full mt-2 bg-white hover:bg-gray-50 border-red-200 text-red-700"
+                                    >
+                                        Resend Verification Email
+                                    </Button>
+                                )}
                             </div>
                         )}
                         <Button
