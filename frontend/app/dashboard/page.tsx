@@ -186,7 +186,7 @@ export default function DashboardPage() {
                             <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
                                 <ArrowRightLeft className="w-5 h-5 text-white" />
                             </div>
-                            <span className="text-lg font-semibold text-white">SWIFT Converter</span>
+                            <span className="text-lg font-semibold text-white">Swift MX Bridge</span>
                         </div>
                         <p className="text-sm">Professional MT to MX conversion tool for financial institutions.</p>
                     </div>
@@ -213,7 +213,7 @@ export default function DashboardPage() {
                     </div>
                 </div>
                 <div className="border-t border-gray-800 pt-6 mt-6 text-center text-sm">
-                    <p>© 2026 SWIFT Converter. Professional MT to MX online conversion, MT103 to MX, swift converter online for financial messaging. All rights reserved.</p>
+                    <p>© 2026 SwiftMX Bridge. Professional MT to MX online conversion, MT103 to MX, swift converter online for financial messaging. All rights reserved.</p>
                 </div>
             </footer>
         </div>
@@ -228,7 +228,7 @@ function FeedbackForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!message.trim() || message.length < 10) return;
-        
+
         setSubmitting(true);
         try {
             await api.post('/api/v1/feedback', { message: message.trim() });

@@ -155,7 +155,7 @@ export default function LoginPage() {
                             <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
                                 <ArrowRightLeft className="w-5 h-5 text-white" />
                             </div>
-                            <span className="text-xl font-semibold text-gray-900">SWIFT Converter</span>
+                            <span className="text-xl font-semibold text-gray-900">SwiftMX Bridge</span>
                         </Link>
                         <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
                         <p className="text-gray-500 mt-1">Sign in to your account</p>

@@ -54,9 +54,8 @@ export default function DashboardLayout({
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Sidebar */}
-            <aside className={`fixed top-0 left-0 z-40 h-screen w-64 bg-white border-r border-gray-200 transition-transform lg:translate-x-0 ${
-                isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-            }`}>
+            <aside className={`fixed top-0 left-0 z-40 h-screen w-64 bg-white border-r border-gray-200 transition-transform lg:translate-x-0 ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                }`}>
                 <div className="h-full flex flex-col p-4">
                     {/* Logo */}
                     <div className="flex items-center justify-between mb-6 px-2">
@@ -64,7 +63,7 @@ export default function DashboardLayout({
                             <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
                                 <ArrowRightLeft className="w-5 h-5 text-white" />
                             </div>
-                            <span className="text-lg font-semibold text-gray-900">SWIFT Converter</span>
+                            <span className="text-lg font-semibold text-gray-900">Swift MX Bridge</span>
                         </Link>
                         <button
                             onClick={() => setIsMobileSidebarOpen(false)}

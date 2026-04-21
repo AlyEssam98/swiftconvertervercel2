@@ -55,7 +55,7 @@ export default function RegisterPage() {
             const data = res?.data;
             const token = getTokenFromResponse(data);
             const message = getMessageFromResponse(data);
-            
+
             if (!token && message) {
                 // Email verification required
                 setRegisteredEmail(email);
@@ -63,14 +63,14 @@ export default function RegisterPage() {
                 setIsLoading(false);
                 return;
             }
-            
+
             if (!token) {
                 const msg = (data as { message?: string })?.message;
                 setError(msg || 'Registration succeeded but no session token was returned. Please sign in.');
                 setIsLoading(false);
                 return;
             }
-            
+
             login(token, email);
             // Redirect after a small delay to allow state to update
             setTimeout(() => router.push('/dashboard'), 100);
@@ -98,7 +98,7 @@ export default function RegisterPage() {
                 <div className="max-w-md text-white">
                     <h2 className="text-3xl font-bold mb-4">Start Converting for Free</h2>
                     <p className="text-blue-100 mb-8">
-                        Get instant access to MT to MX conversion tools. 
+                        Get instant access to MT to MX conversion tools.
                         No credit card required.
                     </p>
                     <ul className="space-y-3">
@@ -138,7 +138,7 @@ export default function RegisterPage() {
                             <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
                                 <ArrowRightLeft className="w-5 h-5 text-white" />
                             </div>
-                            <span className="text-xl font-semibold text-gray-900">SWIFT Converter</span>
+                            <span className="text-xl font-semibold text-gray-900">Swift MX Bridge</span>
                         </Link>
                         <h1 className="text-2xl font-bold text-gray-900">Create account</h1>
                         <p className="text-gray-500 mt-1">Get started with 5 free credits</p>
