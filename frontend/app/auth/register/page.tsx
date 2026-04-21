@@ -71,7 +71,7 @@ export default function RegisterPage() {
                 return;
             }
             
-            login(token);
+            login(token, email);
             // Redirect after a small delay to allow state to update
             setTimeout(() => router.push('/dashboard'), 100);
         } catch (err: unknown) {

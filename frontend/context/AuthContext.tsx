@@ -21,8 +21,9 @@ interface AuthContextType {
 
 const AuthContext = createContext(undefined as AuthContextType | undefined);
 
-// Session key for sessionStorage (cleared on tab close)
+// Session keys for sessionStorage (cleared on tab close)
 const SESSION_KEY = 'session_token';
+const USER_DATA_KEY = 'user_data';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState(null as User | null);
@@ -33,6 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const forceLogout = useCallback(() => {
     try {
       sessionStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem(USER_DATA_KEY);
       localStorage.removeItem('token');
     } catch (e) {
       // Ignore errors
@@ -44,11 +46,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchUserProfile = useCallback(async () => {
     try {
       const res = await api.get('/api/v1/profile');
+      const profileData = res.data;
+      
       setUser((prev: User | null) => {
-        if (prev) {
-          return { ...prev, ...res.data };
-        }
-        return { token: '', ...res.data };
+        const updatedUser = prev ? { ...prev, ...profileData } : { token: '', ...profileData };
+        // Persist profile data (excluding sensitive fields if any)
+        try {
+          sessionStorage.setItem(USER_DATA_KEY, JSON.stringify({
+            email: updatedUser.email,
+            displayName: updatedUser.displayName,
+            credits: updatedUser.credits
+          }));
+        } catch (e) {}
+        return updatedUser;
       });
     } catch (err) {
       console.error('Failed to fetch profile', err);
@@ -64,9 +74,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const initializeAuth = async () => {
       const token = sessionStorage.getItem(SESSION_KEY);
+      const storedUserData = sessionStorage.getItem(USER_DATA_KEY);
+      
       if (token) {
-        setUser({ token });
-        // Fetch profile after a small delay to avoid race conditions
+        let userObj: User = { token };
+        if (storedUserData) {
+          try {
+            const parsedData = JSON.parse(storedUserData);
+            userObj = { ...userObj, ...parsedData };
+          } catch (e) {}
+        }
+        setUser(userObj);
+        
+        // Fetch profile to get latest credits/data
         try {
           await fetchUserProfile();
         } catch (err) {
@@ -81,11 +101,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initializeAuth();
   }, []); // Empty dependency array - only run once on mount
 
-  const login = (token: string) => {
+  const login = (token: string, email?: string) => {
     sessionStorage.setItem(SESSION_KEY, token);
-    setUser({ token });
-    // Don't immediately fetch profile - let the dashboard handle it
-    // This prevents the infinite retry loop with OAuth2
+    if (email) {
+      const userData = { email };
+      sessionStorage.setItem(USER_DATA_KEY, JSON.stringify(userData));
+      setUser({ token, email });
+    } else {
+      setUser({ token });
+    }
     setIsLoading(false);
   };
 
