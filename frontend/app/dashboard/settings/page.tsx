@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { User, Loader2 } from 'lucide-react';
 import api from '@/lib/api';
 import { toast } from 'sonner';
+import { useAuth } from '@/context/AuthContext';
 
 interface ProfileData {
     email: string;
@@ -16,32 +17,32 @@ interface ProfileData {
 }
 
 export default function SettingsPage() {
-    const [profile, setProfile] = useState(null as ProfileData | null);
-    const [name, setName] = useState('');
-    const [loading, setLoading] = useState(true);
+    const { user, refreshUser } = useAuth();
+    const [name, setName] = useState(user?.displayName || '');
+    const [loading, setLoading] = useState(!user?.email);
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-                const res = await api.get('/api/v1/profile');
-                setProfile(res.data);
-                setName(res.data.displayName || '');
-            } catch (err) {
-                console.error("Failed to fetch profile", err);
-                toast.error("Failed to load profile settings");
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchProfile();
-    }, []);
+        if (user?.displayName && !name) {
+            setName(user.displayName);
+        }
+        if (user?.email) {
+            setLoading(false);
+        }
+    }, [user, name]);
+
+    // Initial load if user data is missing
+    useEffect(() => {
+        if (!user?.email) {
+            refreshUser().finally(() => setLoading(false));
+        }
+    }, [user, refreshUser]);
 
     const handleSave = async () => {
         setSaving(true);
         try {
             const res = await api.put('/api/v1/profile', { displayName: name });
-            setProfile(res.data);
+            await refreshUser(); // Update the global auth state
             toast.success("Profile updated successfully");
         } catch (err) {
             console.error("Failed to update profile", err);
@@ -77,7 +78,7 @@ export default function SettingsPage() {
                 <CardContent className="space-y-4">
                     <div>
                         <Label htmlFor="email">Email</Label>
-                        <Input id="email" type="email" value={profile?.email || ''} disabled className="bg-gray-50" />
+                        <Input id="email" type="email" value={user?.email || ''} disabled className="bg-gray-50" />
                     </div>
                     <div>
                         <Label htmlFor="name">Display Name</Label>
