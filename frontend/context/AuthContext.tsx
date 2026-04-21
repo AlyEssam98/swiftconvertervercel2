@@ -24,6 +24,7 @@ const AuthContext = createContext(undefined as AuthContextType | undefined);
 // Session keys for sessionStorage (cleared on tab close)
 const SESSION_KEY = 'session_token';
 const USER_DATA_KEY = 'user_data';
+const AUTH_LOGOUT_EVENT = 'auth:logout';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState(null as User | null);
@@ -35,7 +36,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       sessionStorage.removeItem(SESSION_KEY);
       sessionStorage.removeItem(USER_DATA_KEY);
-      localStorage.removeItem('token');
     } catch (e) {
       // Ignore errors
     }
@@ -100,6 +100,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     initializeAuth();
   }, []); // Empty dependency array - only run once on mount
+
+  useEffect(() => {
+    const handleForcedLogout = () => {
+      forceLogout();
+      router.push('/auth/login');
+    };
+
+    window.addEventListener(AUTH_LOGOUT_EVENT, handleForcedLogout);
+    return () => window.removeEventListener(AUTH_LOGOUT_EVENT, handleForcedLogout);
+  }, [forceLogout, router]);
 
   const login = (token: string, email?: string) => {
     sessionStorage.setItem(SESSION_KEY, token);

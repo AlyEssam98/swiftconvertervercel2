@@ -1,13 +1,64 @@
-﻿import axios from 'axios';
+import axios from 'axios';
 
 const SESSION_KEY = 'session_token';
+const AUTH_LOGOUT_EVENT = 'auth:logout';
+
+type RetryConfig = {
+    _retry?: boolean;
+    skipAuthRefresh?: boolean;
+};
 
 const api = axios.create({
     baseURL: (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'),
+    withCredentials: true,
     headers: {
         'Content-Type': 'application/json',
     },
 });
+
+let refreshPromise: Promise<string | null> | null = null;
+
+const getTokenFromResponse = (data: unknown): string | null => {
+    if (typeof data === 'string' && data.trim()) return data.trim();
+    if (!data || typeof data !== 'object') return null;
+    const obj = data as Record<string, unknown>;
+    const token = (obj.token ?? obj.accessToken ?? obj.access_token) as string | undefined;
+    return typeof token === 'string' && token.trim() ? token.trim() : null;
+};
+
+const emitLogout = () => {
+    if (typeof window === 'undefined') {
+        return;
+    }
+
+    try {
+        sessionStorage.removeItem(SESSION_KEY);
+    } catch {
+        // ignore storage failures
+    }
+    window.dispatchEvent(new Event(AUTH_LOGOUT_EVENT));
+};
+
+const refreshAccessToken = async (): Promise<string | null> => {
+    if (refreshPromise) {
+        return refreshPromise;
+    }
+
+    refreshPromise = api.post('/api/v1/auth/refresh', {}, { skipAuthRefresh: true } as any)
+        .then((res) => {
+            const token = getTokenFromResponse(res?.data);
+            if (typeof window !== 'undefined' && token) {
+                sessionStorage.setItem(SESSION_KEY, token);
+            }
+            return token;
+        })
+        .catch(() => null)
+        .finally(() => {
+            refreshPromise = null;
+        });
+
+    return refreshPromise;
+};
 
 api.interceptors.request.use((config) => {
     // Use sessionStorage instead of localStorage for session-based auth
@@ -20,27 +71,26 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
     response => response,
-    error => {
+    async (error) => {
         const status = error.response?.status;
-        const url = error.config?.url || '';
-        
-        // Only logout on 401 for protected routes (not public routes or payment callbacks)
-        const isProtectedRoute = url.includes('/profile') || 
-                                  url.includes('/dashboard') || 
-                                  url.includes('/credits/balance') ||
-                                  url.includes('/conversions');
-        
-        if (typeof window !== 'undefined' && status === 401 && isProtectedRoute) {
-            try {
-                sessionStorage.removeItem(SESSION_KEY);
-                localStorage.removeItem('token');
-            } catch (e) {
-                // ignore
+        const originalRequest = (error.config ?? {}) as typeof error.config & RetryConfig;
+        const hasSessionToken = typeof window !== 'undefined' && !!sessionStorage.getItem(SESSION_KEY);
+        const shouldTryRefresh = status === 401 && hasSessionToken && !originalRequest._retry && !originalRequest.skipAuthRefresh;
+
+        if (shouldTryRefresh) {
+            originalRequest._retry = true;
+            const refreshedToken = await refreshAccessToken();
+            if (refreshedToken) {
+                originalRequest.headers = originalRequest.headers ?? {};
+                originalRequest.headers.Authorization = `Bearer ${refreshedToken}`;
+                return api(originalRequest);
             }
-            window.location.href = '/auth/login';
-            return Promise.resolve();
         }
-        
+
+        if (status === 401) {
+            emitLogout();
+        }
+
         return Promise.reject(error);
     }
 );

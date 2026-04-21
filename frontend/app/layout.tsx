@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "sonner";
+import { IdleSessionManager } from "@/components/auth/IdleSessionManager";
 
 const inter = Inter({
     subsets: ["latin"],
@@ -97,6 +98,7 @@ export default function RootLayout({
                     disableTransitionOnChange
                 >
                     <AuthProvider>
+                        <IdleSessionManager />
                         {children}
                         <Toaster />
                     </AuthProvider>
