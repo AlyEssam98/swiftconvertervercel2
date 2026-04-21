@@ -14,7 +14,7 @@ function VerifyContent() {
     const router = useRouter();
     const { login } = useAuth();
     
-    const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+    const [status, setStatus] = useState('loading' as 'loading' | 'success' | 'error');
     const [message, setMessage] = useState('Verifying your email address...');
 
     useEffect(() => {
