@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/lib/api';
@@ -16,13 +16,18 @@ function VerifyContent() {
     
     const [status, setStatus] = useState('loading' as 'loading' | 'success' | 'error');
     const [message, setMessage] = useState('Verifying your email address...');
+    const hasFetched = useRef(false);
 
     useEffect(() => {
-        if (!token) {
-            setStatus('error');
-            setMessage('Invalid verification link. No token provided.');
+        if (!token || hasFetched.current) {
+            if (!token) {
+                setStatus('error');
+                setMessage('Invalid verification link. No token provided.');
+            }
             return;
         }
+
+        hasFetched.current = true;
 
         const verifyToken = async () => {
             try {
@@ -48,17 +53,18 @@ function VerifyContent() {
                 }
             } catch (err: any) {
                 console.error('Verification error:', err);
-                setStatus('error');
+                // Don't show error if we already succeeded (race condition safeguard)
+                setStatus((prev: string) => prev === 'success' ? 'success' : 'error');
                 if (err.response?.data?.message) {
-                    setMessage(err.response.data.message);
+                    setMessage((_prev: string) => status === 'success' ? 'Email verified successfully!' : err.response.data.message);
                 } else {
-                    setMessage('Failed to verify email. The link may be expired or invalid.');
+                    setMessage((_prev: string) => status === 'success' ? 'Email verified successfully!' : 'Failed to verify email. The link may be expired or invalid.');
                 }
             }
         };
 
         verifyToken();
-    }, [token, router, login]);
+    }, [token, router, login, status]);
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center p-4">
