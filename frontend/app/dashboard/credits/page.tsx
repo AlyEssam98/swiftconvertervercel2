@@ -108,8 +108,8 @@ export default function CreditsPage() {
                 await refreshUser();
             }
         } catch (error: unknown) {
-            const errorData = (error as { response?: { data?: { message?: string } } }).response?.data;
-            toast.error(errorData?.message || 'Failed to purchase credits');
+            const errorData = (error as { response?: { data?: { message?: string; error?: string } } }).response?.data;
+            toast.error(errorData?.message || errorData?.error || 'Failed to purchase credits');
         } finally {
             setIsPurchasing(null);
         }
