@@ -1,100 +1,78 @@
 "use client";
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ArrowRight, Loader2, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/lib/api';
-import { loadPendingCreditPurchase, clearPendingCreditPurchase } from '@/lib/creditPurchaseStorage';
 
 export default function CreditSuccessPage() {
     const [loading, setLoading] = useState(true);
     const [credits, setCredits] = useState(null as number | null);
     const [newCreditsAdded, setNewCreditsAdded] = useState(null as number | null);
-    const [pending, setPending] = useState(false);
     const { refreshUser } = useAuth();
 
-    const tryVerifyAndPoll = useCallback(async () => {
-        setLoading(true);
-        setPending(false);
-
-        const params = new URLSearchParams(window.location.search);
-        const sessionId = params.get('session_id');
-
-        // Load the pre-purchase baseline saved before redirect
-        const pendingPurchase = loadPendingCreditPurchase();
-        const storedBaseline = pendingPurchase?.baselineBalance ?? 0;
-
-        try {
-            // Step 1: Call verify-purchase endpoint (proactively fulfills if webhook hasn't)
-            if (sessionId) {
-                try {
-                    const verifyRes = await api.get('/api/v1/credits/verify-purchase', {
-                        params: { session_id: sessionId }
-                    });
-                    if (verifyRes.data.fulfilled) {
-                        const currentCredits = verifyRes.data.availableCredits ?? 0;
-                        setCredits(currentCredits);
-                        setNewCreditsAdded(currentCredits - storedBaseline);
-                        await refreshUser();
-                        clearPendingCreditPurchase();
-                        setLoading(false);
-                        return;
-                    }
-                } catch {
-                    // verify endpoint failed, fall through to polling
-                }
-            }
-
-            // Step 2: Poll balance against stored baseline (max 10 attempts, 2s each = 20s)
-            const MAX_ATTEMPTS = 10;
-            let currentCredits = storedBaseline;
-
-            for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-                await new Promise((resolve) => setTimeout(resolve, 2000));
-
-                try {
-                    await refreshUser();
-                    const response = await api.get('/api/v1/credits/balance');
-                    currentCredits = response.data.availableCredits ?? 0;
-
-                    if (currentCredits > storedBaseline) {
-                        setCredits(currentCredits);
-                        setNewCreditsAdded(currentCredits - storedBaseline);
-                        clearPendingCreditPurchase();
-                        setLoading(false);
-                        return;
-                    }
-                } catch {
-                    // transient error, keep retrying
-                }
-            }
-
-            // Polling exhausted — show current balance with "still processing" message
-            setCredits(currentCredits);
-            setNewCreditsAdded(null);
-            setPending(true);
-        } catch (error) {
-            console.error('Failed to verify purchase:', error);
-            setCredits(storedBaseline);
-            setNewCreditsAdded(null);
-            setPending(true);
-        } finally {
-            setLoading(false);
-        }
-    }, [refreshUser]);
-
     useEffect(() => {
-        tryVerifyAndPoll();
-    }, [tryVerifyAndPoll]);
+        const refreshCredits = async () => {
+            try {
+                // Step 1: Get the baseline credit balance BEFORE the webhook arrives
+                let baselineCredits = 0;
+                try {
+                    const baselineResponse = await api.get('/api/v1/credits/balance');
+                    baselineCredits = baselineResponse.data.availableCredits ?? 0;
+                } catch {
+                    // ignore baseline fetch failure, treat as 0
+                }
+
+                // Step 2: Poll until balance increases above baseline (webhook processed)
+                // Up to 30 attempts with growing delays (~30 seconds total window)
+                let attempts = 0;
+                let currentCredits = baselineCredits;
+                const MAX_ATTEMPTS = 30;
+
+                while (attempts < MAX_ATTEMPTS) {
+                    await new Promise((resolve) => setTimeout(resolve, 1000 + attempts * 500));
+
+                    try {
+                        await refreshUser();
+                        const response = await api.get('/api/v1/credits/balance');
+                        currentCredits = response.data.availableCredits ?? 0;
+
+                        if (currentCredits > baselineCredits) {
+                            // Webhook has been processed — credits increased
+                            setCredits(currentCredits);
+                            setNewCreditsAdded(currentCredits - baselineCredits);
+                            break;
+                        }
+                    } catch {
+                        // transient error, keep retrying
+                    }
+
+                    attempts++;
+                }
+
+                // Polling exhausted — show whatever the current balance is
+                if (currentCredits <= baselineCredits) {
+                    setCredits(currentCredits);
+                    setNewCreditsAdded(null); // webhook may still be in flight
+                }
+            } catch (error) {
+                console.error('Failed to refresh credits:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        refreshCredits();
+    }, [refreshUser]);
 
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
                 <div className="text-center">
                     <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
-                    <p className="text-gray-600">Verifying your payment...</p>
+                    <p className="text-gray-600">Processing your payment...</p>
                 </div>
             </div>
         );
@@ -130,15 +108,7 @@ export default function CreditSuccessPage() {
                     ) : (
                         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 text-sm text-yellow-800">
                             <p className="font-medium mb-1">⏳ Credits are being processed</p>
-                            <p>Your payment was received. Credits may take a moment to appear.</p>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="mt-3"
-                                onClick={tryVerifyAndPoll}
-                            >
-                                Check Again
-                            </Button>
+                            <p>Your payment was received. Credits may take a moment to appear — please refresh your balance in a few seconds.</p>
                         </div>
                     )}
 
