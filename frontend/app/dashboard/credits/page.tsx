@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { CreditCard, Plus, TrendingUp, Loader2 } from 'lucide-react';
+import { CreditCard, Plus, TrendingUp, Loader2, CheckCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import api from '@/lib/api';
