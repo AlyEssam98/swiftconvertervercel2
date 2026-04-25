@@ -1,8 +1,7 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CreditCard, Plus, TrendingUp, Loader2, CheckCircle } from 'lucide-react';
+import { CreditCard, Plus, TrendingUp, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import api from '@/lib/api';
@@ -77,7 +76,7 @@ export default function CreditsPage() {
 
     const fetchCreditBalance = async () => {
         try {
-            const response = await api.get('/api/v1/credits/balance');
+            const response = await api.get<CreditBalance>('/api/v1/credits/balance');
             setCreditBalance(response.data);
         } catch (error) {
             toast.error('Failed to fetch credit balance');
@@ -86,7 +85,7 @@ export default function CreditsPage() {
 
     const fetchPackages = async () => {
         try {
-            const response = await api.get('/api/v1/credits/packages');
+            const response = await api.get<CreditPackage[]>('/api/v1/credits/packages');
             setPackages(response.data);
         } catch (error) {
             toast.error('Failed to fetch credit packages');
@@ -98,7 +97,7 @@ export default function CreditsPage() {
     const handlePurchase = async (packageId: string) => {
         setIsPurchasing(packageId);
         try {
-            const response = await api.post('/api/v1/credits/purchase', { packageId });
+            const response = await api.post<{ checkoutUrl?: string; message: string }>('/api/v1/credits/purchase', { packageId });
             
             if (response.data.checkoutUrl) {
                 // Find the package to get the credit amount

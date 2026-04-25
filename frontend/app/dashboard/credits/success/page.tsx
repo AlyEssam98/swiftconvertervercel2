@@ -12,7 +12,7 @@ const INITIAL_SETTLE_DELAY_MS = 2000;
 const POLL_INTERVAL_MS = 2000;
 const MAX_POLL_ATTEMPTS = 15; // 30 seconds total polling
 
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(() => resolve(), ms));
 
 export default function CreditSuccessPage() {
     const [loading, setLoading] = useState(true);
@@ -25,11 +25,11 @@ export default function CreditSuccessPage() {
     useEffect(() => {
         let isCancelled = false;
 
-        const fetchCurrentBalance = async () => {
+        const fetchCurrentBalance = async (): Promise<number | null> => {
             try {
                 // Refresh auth context to ensure profile is up to date
                 await refreshUser();
-                const response = await api.get("/api/v1/credits/balance");
+                const response = await api.get<{ availableCredits: number }>("/api/v1/credits/balance");
                 return response.data.availableCredits ?? 0;
             } catch (error) {
                 console.error("Error fetching balance:", error);
