@@ -99,8 +99,11 @@ export default function CreditsPage() {
         try {
             const response = await api.post('/api/v1/credits/purchase', { packageId });
             if (response.data.checkoutUrl) {
-                // Store current path to return after payment
+                // Store current path and checkoutId for verification on return
                 sessionStorage.setItem('returnTo', '/dashboard/credits');
+                if (response.data.checkoutId) {
+                    sessionStorage.setItem('pendingCheckoutId', response.data.checkoutId);
+                }
                 window.location.href = response.data.checkoutUrl;
             } else {
                 toast.success(response.data.message);
