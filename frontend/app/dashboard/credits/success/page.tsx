@@ -16,8 +16,8 @@ const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(() => res
 
 export default function CreditSuccessPage() {
     const [loading, setLoading] = useState(true);
-    const [credits, setCredits] = useState<number | null>(null);
-    const [newCreditsAdded, setNewCreditsAdded] = useState<number | null>(null);
+    const [credits, setCredits] = useState(null as number | null);
+    const [newCreditsAdded, setNewCreditsAdded] = useState(null as number | null);
     const [statusMessage, setStatusMessage] = useState("Confirming your payment...");
     const [paymentConfirmed, setPaymentConfirmed] = useState(false);
     const { refreshUser } = useAuth();
@@ -29,7 +29,7 @@ export default function CreditSuccessPage() {
             try {
                 // Refresh auth context to ensure profile is up to date
                 await refreshUser();
-                const response = await api.get<{ availableCredits: number }>("/api/v1/credits/balance");
+                const response = await api.get("/api/v1/credits/balance") as { data: { availableCredits: number } };
                 return response.data.availableCredits ?? 0;
             } catch (error) {
                 console.error("Error fetching balance:", error);

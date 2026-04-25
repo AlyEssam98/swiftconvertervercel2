@@ -101,7 +101,7 @@ export default function CreditsPage() {
             
             if (response.data.checkoutUrl) {
                 // Find the package to get the credit amount
-                const selectedPackage = packages.find(p => p.id === packageId);
+                const selectedPackage = packages.find((p: CreditPackage) => p.id === packageId);
                 const packageCredits = selectedPackage ? selectedPackage.credits : 0;
                 
                 // Save pending purchase info
