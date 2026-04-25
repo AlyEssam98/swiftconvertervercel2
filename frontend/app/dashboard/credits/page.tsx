@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import api from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
+import { savePendingCreditPurchase } from '@/lib/creditPurchaseStorage';
 
 interface CreditBalance {
     availableCredits: number;
@@ -53,7 +54,7 @@ export default function CreditsPage() {
         };
 
         // Also check for redirect with delay to allow webhook to process
-        const handlePageShow = (event: any) => {
+        const handlePageShow = (event: PageTransitionEvent) => {
             if (event.persisted) {
                 // Page was restored from bfcache, refresh data
                 setTimeout(() => {
@@ -97,8 +98,23 @@ export default function CreditsPage() {
     const handlePurchase = async (packageId: string) => {
         setIsPurchasing(packageId);
         try {
+            const selectedPackage = packages.find((pkg: CreditPackage) => pkg.id === packageId);
+            if (!selectedPackage) {
+                toast.error('Selected package is unavailable');
+                return;
+            }
+
+            const currentBalance =
+                creditBalance?.availableCredits ?? (await api.get('/api/v1/credits/balance')).data.availableCredits ?? 0;
+
             const response = await api.post('/api/v1/credits/purchase', { packageId });
             if (response.data.checkoutUrl) {
+                savePendingCreditPurchase({
+                    packageId,
+                    credits: selectedPackage.credits,
+                    baselineBalance: currentBalance,
+                    startedAt: new Date().toISOString(),
+                });
                 // Store current path to return after payment
                 sessionStorage.setItem('returnTo', '/dashboard/credits');
                 window.location.href = response.data.checkoutUrl;
