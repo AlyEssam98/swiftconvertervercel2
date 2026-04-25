@@ -8,9 +8,9 @@ import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api";
 import { clearPendingCreditPurchase, loadPendingCreditPurchase } from "@/lib/creditPurchaseStorage";
 
-const INITIAL_SETTLE_DELAY_MS = 2000;
-const POLL_INTERVAL_MS = 2000;
-const MAX_POLL_ATTEMPTS = 15; // 30 seconds total polling
+const INITIAL_SETTLE_DELAY_MS = 500; // Minimal initial delay
+const POLL_INTERVAL_MS = 1500;     // Faster polling (every 1.5s)
+const MAX_POLL_ATTEMPTS = 20;      // 30 seconds total
 
 const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(() => resolve(), ms));
 
@@ -29,7 +29,7 @@ export default function CreditSuccessPage() {
             try {
                 // Refresh auth context to ensure profile is up to date
                 await refreshUser();
-                const response = await api.get("/api/v1/credits/balance") as { data: { availableCredits: number } };
+                const response = await api.get(`/api/v1/credits/balance?_t=${new Date().getTime()}`) as { data: { availableCredits: number } };
                 return response.data.availableCredits ?? 0;
             } catch (error) {
                 console.error("Error fetching balance:", error);

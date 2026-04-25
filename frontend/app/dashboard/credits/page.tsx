@@ -76,7 +76,7 @@ export default function CreditsPage() {
 
     const fetchCreditBalance = async () => {
         try {
-            const response = await api.get<CreditBalance>('/api/v1/credits/balance');
+            const response = await api.get<CreditBalance>(`/api/v1/credits/balance?_t=${new Date().getTime()}`);
             setCreditBalance(response.data);
         } catch (error) {
             toast.error('Failed to fetch credit balance');
