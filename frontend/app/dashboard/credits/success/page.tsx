@@ -1,126 +1,177 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { CheckCircle, ArrowRight, Loader2, CreditCard, RefreshCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, ArrowRight, Loader2, CreditCard } from 'lucide-react';
-import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext';
-import api from '@/lib/api';
+import { useAuth } from "@/context/AuthContext";
+import api from "@/lib/api";
+import { clearPendingCreditPurchase, loadPendingCreditPurchase } from "@/lib/creditPurchaseStorage";
+
+const INITIAL_SETTLE_DELAY_MS = 2000;
+const POLL_INTERVAL_MS = 2000;
+const MAX_POLL_ATTEMPTS = 15; // 30 seconds total polling
+
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default function CreditSuccessPage() {
     const [loading, setLoading] = useState(true);
-    const [credits, setCredits] = useState(null as number | null);
-    const [newCreditsAdded, setNewCreditsAdded] = useState(null as number | null);
+    const [credits, setCredits] = useState<number | null>(null);
+    const [newCreditsAdded, setNewCreditsAdded] = useState<number | null>(null);
+    const [statusMessage, setStatusMessage] = useState("Confirming your payment...");
+    const [paymentConfirmed, setPaymentConfirmed] = useState(false);
     const { refreshUser } = useAuth();
 
     useEffect(() => {
-        const refreshCredits = async () => {
+        let isCancelled = false;
+
+        const fetchCurrentBalance = async () => {
             try {
-                // Step 1: Get the baseline credit balance BEFORE the webhook arrives
-                let baselineCredits = 0;
-                try {
-                    const baselineResponse = await api.get('/api/v1/credits/balance');
-                    baselineCredits = baselineResponse.data.availableCredits ?? 0;
-                } catch {
-                    // ignore baseline fetch failure, treat as 0
-                }
-
-                // Step 2: Poll until balance increases above baseline (webhook processed)
-                // Up to 30 attempts with growing delays (~30 seconds total window)
-                let attempts = 0;
-                let currentCredits = baselineCredits;
-                const MAX_ATTEMPTS = 30;
-
-                while (attempts < MAX_ATTEMPTS) {
-                    await new Promise((resolve) => setTimeout(resolve, 1000 + attempts * 500));
-
-                    try {
-                        await refreshUser();
-                        const response = await api.get('/api/v1/credits/balance');
-                        currentCredits = response.data.availableCredits ?? 0;
-
-                        if (currentCredits > baselineCredits) {
-                            // Webhook has been processed — credits increased
-                            setCredits(currentCredits);
-                            setNewCreditsAdded(currentCredits - baselineCredits);
-                            break;
-                        }
-                    } catch {
-                        // transient error, keep retrying
-                    }
-
-                    attempts++;
-                }
-
-                // Polling exhausted — show whatever the current balance is
-                if (currentCredits <= baselineCredits) {
-                    setCredits(currentCredits);
-                    setNewCreditsAdded(null); // webhook may still be in flight
-                }
+                // Refresh auth context to ensure profile is up to date
+                await refreshUser();
+                const response = await api.get("/api/v1/credits/balance");
+                return response.data.availableCredits ?? 0;
             } catch (error) {
-                console.error('Failed to refresh credits:', error);
-            } finally {
-                setLoading(false);
+                console.error("Error fetching balance:", error);
+                return null;
             }
         };
-        refreshCredits();
+
+        const finalizePurchaseState = async () => {
+            const pendingPurchase = loadPendingCreditPurchase();
+
+            if (!pendingPurchase) {
+                // If no pending purchase found, just show current balance
+                const currentBalance = await fetchCurrentBalance();
+                if (isCancelled) return;
+
+                setCredits(currentBalance);
+                setNewCreditsAdded(null);
+                setPaymentConfirmed(true);
+                setStatusMessage("Your payment was confirmed.");
+                setLoading(false);
+                return;
+            }
+
+            const expectedBalance = pendingPurchase.baselineBalance + pendingPurchase.credits;
+            setStatusMessage(`Waiting for +${pendingPurchase.credits} credits to sync...`);
+
+            // Initial wait to allow webhook to potentially arrive
+            await wait(INITIAL_SETTLE_DELAY_MS);
+
+            let latestBalance = pendingPurchase.baselineBalance;
+
+            for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
+                if (isCancelled) return;
+
+                const currentBalance = await fetchCurrentBalance();
+                if (currentBalance !== null) {
+                    latestBalance = currentBalance;
+                }
+
+                if (latestBalance >= expectedBalance) {
+                    if (isCancelled) return;
+                    
+                    setCredits(latestBalance);
+                    setNewCreditsAdded(pendingPurchase.credits);
+                    setPaymentConfirmed(true);
+                    setStatusMessage("Your credits were added successfully!");
+                    clearPendingCreditPurchase();
+                    setLoading(false);
+                    return;
+                }
+
+                if (attempt < MAX_POLL_ATTEMPTS - 1) {
+                    await wait(POLL_INTERVAL_MS);
+                }
+            }
+
+            // If we get here, polling timed out
+            if (isCancelled) return;
+
+            setCredits(latestBalance);
+            setNewCreditsAdded(null);
+            setPaymentConfirmed(false);
+            setStatusMessage(
+                "Payment received, but credits are still syncing. They will appear in your account shortly."
+            );
+            setLoading(false);
+        };
+
+        finalizePurchaseState();
+
+        return () => {
+            isCancelled = true;
+        };
     }, [refreshUser]);
 
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
                 <div className="text-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
-                    <p className="text-gray-600">Processing your payment...</p>
+                    <Loader2 className="w-10 h-10 animate-spin text-blue-600 mx-auto mb-4" />
+                    <p className="text-gray-600 font-medium">{statusMessage}</p>
+                    <p className="text-gray-400 text-sm mt-2">Please do not close this window.</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="max-w-md mx-auto py-8">
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                <div className="p-6 text-center">
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <CheckCircle className="w-8 h-8 text-green-600" />
+        <div className="max-w-md mx-auto py-12 px-4">
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                <div className="p-8 text-center">
+                    <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <CheckCircle className="w-10 h-10 text-green-600" />
                     </div>
+                    
                     <h1 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h1>
-                    <p className="text-gray-500 mb-6">Your payment was confirmed. Credits are being added to your account.</p>
+                    <p className="text-gray-500 mb-8">{statusMessage}</p>
 
-                    {newCreditsAdded !== null && newCreditsAdded > 0 ? (
-                        <div className="mb-6 space-y-3">
-                            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                                <p className="text-sm text-green-700 font-medium mb-1">✅ Credits Added</p>
-                                <p className="text-2xl font-bold text-green-700">+{newCreditsAdded} credits</p>
+                    {paymentConfirmed && newCreditsAdded !== null ? (
+                        <div className="mb-8 space-y-4">
+                            <div className="bg-green-50 border border-green-100 rounded-xl p-5">
+                                <p className="text-sm text-green-700 font-semibold uppercase tracking-wider mb-1">Credits Added</p>
+                                <p className="text-4xl font-black text-green-700">+{newCreditsAdded}</p>
                             </div>
+                            
                             {credits !== null && (
-                                <div className="bg-blue-50 rounded-lg p-3">
-                                    <div className="flex items-center justify-center space-x-2">
-                                        <CreditCard className="w-5 h-5 text-blue-600" />
-                                        <span className="text-lg font-semibold text-gray-900">
-                                            {credits} Total Available
-                                        </span>
-                                    </div>
+                                <div className="bg-blue-50 rounded-xl p-4 flex items-center justify-center space-x-3">
+                                    <CreditCard className="w-5 h-5 text-blue-600" />
+                                    <span className="text-lg font-bold text-gray-900">
+                                        {credits} Total Balance
+                                    </span>
                                 </div>
                             )}
                         </div>
                     ) : (
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 text-sm text-yellow-800">
-                            <p className="font-medium mb-1">⏳ Credits are being processed</p>
-                            <p>Your payment was received. Credits may take a moment to appear — please refresh your balance in a few seconds.</p>
+                        <div className="bg-amber-50 border border-amber-100 rounded-xl p-6 mb-8 text-center">
+                            <div className="flex justify-center mb-3">
+                                <RefreshCcw className="w-6 h-6 text-amber-600 animate-spin" />
+                            </div>
+                            <p className="text-amber-900 font-bold mb-1">Syncing in progress</p>
+                            <p className="text-amber-800 text-sm">
+                                Your payment is confirmed. Credits usually appear within 1-2 minutes. 
+                                You can safely leave this page and check your dashboard later.
+                            </p>
+                            {credits !== null && (
+                                <div className="mt-4 pt-4 border-t border-amber-200/50">
+                                    <p className="text-xs text-amber-700 uppercase font-semibold">Current Balance</p>
+                                    <p className="text-xl font-bold text-amber-900">{credits} credits</p>
+                                </div>
+                            )}
                         </div>
                     )}
 
-                    <div className="flex flex-col sm:flex-row gap-3">
-                        <Link href="/dashboard" className="flex-1">
-                            <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                    <div className="grid grid-cols-1 gap-3">
+                        <Link href="/dashboard" className="w-full">
+                            <Button className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-lg font-semibold rounded-xl">
                                 Start Converting
                             </Button>
                         </Link>
-                        <Link href="/dashboard/credits" className="flex-1">
-                            <Button variant="outline" className="w-full">
-                                View Credits <ArrowRight className="w-4 h-4 ml-2" />
+                        <Link href="/dashboard/credits" className="w-full">
+                            <Button variant="outline" className="w-full h-12 text-lg font-semibold rounded-xl border-gray-200 hover:bg-gray-50">
+                                View History <ArrowRight className="w-5 h-5 ml-2" />
                             </Button>
                         </Link>
                     </div>

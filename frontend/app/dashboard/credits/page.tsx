@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import api from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
+import { savePendingCreditPurchase } from '@/lib/creditPurchaseStorage';
 
 interface CreditBalance {
     availableCredits: number;
@@ -98,7 +99,19 @@ export default function CreditsPage() {
         setIsPurchasing(packageId);
         try {
             const response = await api.post('/api/v1/credits/purchase', { packageId });
+            
             if (response.data.checkoutUrl) {
+                // Find the package to get the credit amount
+                const selectedPackage = packages.find(p => p.id === packageId);
+                const packageCredits = selectedPackage ? selectedPackage.credits : 0;
+                
+                // Save pending purchase info
+                savePendingCreditPurchase({
+                    credits: packageCredits,
+                    baselineBalance: creditBalance?.availableCredits ?? 0,
+                    timestamp: Date.now()
+                });
+
                 // Store current path to return after payment
                 sessionStorage.setItem('returnTo', '/dashboard/credits');
                 window.location.href = response.data.checkoutUrl;
