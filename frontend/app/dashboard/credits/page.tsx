@@ -1,6 +1,5 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CreditCard, Plus, TrendingUp, Loader2, CheckCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -8,6 +7,7 @@ import Script from 'next/script';
 import { toast } from 'sonner';
 import api from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
+import { savePendingCreditPurchase } from '@/lib/creditPurchaseStorage';
 
 interface CreditBalance {
     availableCredits: number;
@@ -77,7 +77,7 @@ export default function CreditsPage() {
 
     const fetchCreditBalance = async () => {
         try {
-            const response = await api.get('/api/v1/credits/balance');
+            const response = await api.get<CreditBalance>(`/api/v1/credits/balance?_t=${new Date().getTime()}`);
             setCreditBalance(response.data);
         } catch (error) {
             toast.error('Failed to fetch credit balance');
@@ -86,7 +86,7 @@ export default function CreditsPage() {
 
     const fetchPackages = async () => {
         try {
-            const response = await api.get('/api/v1/credits/packages');
+            const response = await api.get<CreditPackage[]>('/api/v1/credits/packages');
             setPackages(response.data);
         } catch (error) {
             toast.error('Failed to fetch credit packages');
@@ -98,8 +98,20 @@ export default function CreditsPage() {
     const handlePurchase = async (packageId: string) => {
         setIsPurchasing(packageId);
         try {
-            const response = await api.post('/api/v1/credits/purchase', { packageId });
+            const response = await api.post<{ checkoutUrl?: string; message: string }>('/api/v1/credits/purchase', { packageId });
+            
             if (response.data.checkoutUrl) {
+                // Find the package to get the credit amount
+                const selectedPackage = packages.find((p: CreditPackage) => p.id === packageId);
+                const packageCredits = selectedPackage ? selectedPackage.credits : 0;
+                
+                // Save pending purchase info
+                savePendingCreditPurchase({
+                    credits: packageCredits,
+                    baselineBalance: creditBalance?.availableCredits ?? 0,
+                    timestamp: Date.now()
+                });
+
                 // Store current path to return after payment
                 sessionStorage.setItem('returnTo', '/dashboard/credits');
                 
