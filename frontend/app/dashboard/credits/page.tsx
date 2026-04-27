@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import api from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { savePendingCreditPurchase } from '@/lib/creditPurchaseStorage';
+import { openLemonSqueezyCheckout } from '@/lib/lemonSqueezy';
 
 interface CreditBalance {
     availableCredits: number;
@@ -135,56 +136,8 @@ export default function CreditsPage() {
                 // Store current path to return after payment
                 sessionStorage.setItem('returnTo', '/dashboard/credits');
                 
-                // Use Lemon Squeezy overlay if available
-                if (typeof window !== 'undefined') {
-                    console.log("Lemon Squeezy Debug: Starting purchase flow");
-                    
-                    let ls = (window as any).LemonSqueezy;
-                    console.log("Lemon Squeezy Debug: window.LemonSqueezy type =", typeof ls);
-
-                    // If not found, try one last time after a tiny delay
-                    if (!ls) {
-                        await new Promise(resolve => setTimeout(resolve, 500));
-                        ls = (window as any).LemonSqueezy;
-                        console.log("Lemon Squeezy Debug: Re-checking LS type =", typeof ls);
-                    }
-
-                    if (ls) {
-                        // Ensure the URL has embed=1 for the overlay to work correctly
-                        let checkoutUrl = response.data.checkoutUrl;
-                        if (checkoutUrl && !checkoutUrl.includes('embed=1')) {
-                            checkoutUrl += checkoutUrl.includes('?') ? '&embed=1' : '?embed=1';
-                        }
-                        
-                        console.log("Lemon Squeezy Debug: Triggering via dynamic button");
-                        // Creating a temporary link with the required class is often more reliable than Url.Open()
-                        const link = document.createElement('a');
-                        link.href = checkoutUrl;
-                        link.className = 'lemonsqueezy-button';
-                        link.style.display = 'none';
-                        document.body.appendChild(link);
-                        
-                        try {
-                            // Refresh LS to pick up the new button and then click it
-                            ls.Refresh();
-                            link.click();
-                        } catch (e) {
-                            console.error("Lemon Squeezy Debug: Dynamic trigger failed", e);
-                            window.location.href = checkoutUrl;
-                        } finally {
-                            // Clean up after a delay
-                            setTimeout(() => {
-                                if (document.body.contains(link)) {
-                                    document.body.removeChild(link);
-                                }
-                            }, 1000);
-                        }
-                    } else {
-                        // Fallback to direct redirect if LemonSqueezy is missing
-                        console.warn("Lemon Squeezy Debug: LemonSqueezy object not found, falling back to redirect.");
-                        window.location.href = response.data.checkoutUrl;
-                    }
-                }
+                // Open checkout via utility
+                await openLemonSqueezyCheckout(response.data.checkoutUrl);
             } else {
                 toast.success(response.data.message);
                 await fetchCreditBalance();

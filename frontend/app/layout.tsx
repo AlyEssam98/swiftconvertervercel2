@@ -7,7 +7,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "sonner";
 import { IdleSessionManager } from "@/components/auth/IdleSessionManager";
-
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 const inter = Inter({
     subsets: ["latin"],
@@ -84,8 +84,6 @@ export const metadata: Metadata = {
         canonical: "https://www.swiftmxbridge.com",
     },
 };
-
-import { ThemeProvider } from "@/components/ThemeProvider";
 
 export default function RootLayout({
     children,
