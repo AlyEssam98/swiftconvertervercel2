@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { CreditCard, Plus, TrendingUp, Loader2, CheckCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import Script from 'next/script';
 import { toast } from 'sonner';
 import api from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
@@ -37,6 +36,23 @@ export default function CreditsPage() {
     useEffect(() => {
         fetchCreditBalance();
         fetchPackages();
+
+        // Load Lemon Squeezy script manually to avoid Next.js Script component TS issues
+        const script = document.createElement('script');
+        script.src = "https://app.lemonsqueezy.com/js/lemon.js";
+        script.async = true;
+        script.onload = () => {
+            if (typeof window !== 'undefined' && (window as any).createLemonSqueezy) {
+                (window as any).createLemonSqueezy();
+            }
+        };
+        document.body.appendChild(script);
+
+        return () => {
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
+        };
     }, []);
 
     // Refresh credits when page gets focus (returning from payment)
@@ -137,15 +153,6 @@ export default function CreditsPage() {
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
-            <Script
-                src="https://app.lemonsqueezy.com/js/lemon.js"
-                strategy="lazyOnload"
-                onLoad={() => {
-                    if (typeof window !== 'undefined' && (window as any).createLemonSqueezy) {
-                        (window as any).createLemonSqueezy();
-                    }
-                }}
-            />
             <div>
                 <h1 className="text-2xl font-bold text-gray-900">Credits</h1>
                 <p className="text-gray-500">Manage your conversion credits</p>
