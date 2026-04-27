@@ -36,23 +36,6 @@ export default function CreditsPage() {
     useEffect(() => {
         fetchCreditBalance();
         fetchPackages();
-
-        // Load Lemon Squeezy script manually to avoid Next.js Script component TS issues
-        const script = document.createElement('script');
-        script.src = "https://app.lemonsqueezy.com/js/lemon.js";
-        script.async = true;
-        script.onload = () => {
-            if (typeof window !== 'undefined' && (window as any).createLemonSqueezy) {
-                (window as any).createLemonSqueezy();
-            }
-        };
-        document.body.appendChild(script);
-
-        return () => {
-            if (document.body.contains(script)) {
-                document.body.removeChild(script);
-            }
-        };
     }, []);
 
     // Refresh credits when page gets focus (returning from payment)
@@ -132,11 +115,24 @@ export default function CreditsPage() {
                 sessionStorage.setItem('returnTo', '/dashboard/credits');
                 
                 // Use Lemon Squeezy overlay if available
-                if (typeof window !== 'undefined' && (window as any).LemonSqueezy) {
-                    (window as any).LemonSqueezy.Url.Open(response.data.checkoutUrl);
-                } else {
-                    // Fallback to direct redirect
-                    window.location.href = response.data.checkoutUrl;
+                if (typeof window !== 'undefined') {
+                    // If script is loaded but not initialized, initialize it
+                    if (!(window as any).LemonSqueezy && (window as any).createLemonSqueezy) {
+                        (window as any).createLemonSqueezy();
+                    }
+                    
+                    if ((window as any).LemonSqueezy) {
+                        (window as any).LemonSqueezy.Setup({
+                            eventHandler: (event: any) => {
+                                console.log('Lemon Squeezy event:', event);
+                            }
+                        });
+                        (window as any).LemonSqueezy.Url.Open(response.data.checkoutUrl);
+                    } else {
+                        // Fallback to direct redirect
+                        console.warn("LemonSqueezy object not found, falling back to redirect.");
+                        window.location.href = response.data.checkoutUrl;
+                    }
                 }
             } else {
                 toast.success(response.data.message);

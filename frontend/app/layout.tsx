@@ -101,6 +101,8 @@ export default function RootLayout({
                         <IdleSessionManager />
                         {children}
                         <Toaster />
+                        {/* @ts-ignore */}
+                        <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>
                     </AuthProvider>
                 </ThemeProvider>
             </body>
