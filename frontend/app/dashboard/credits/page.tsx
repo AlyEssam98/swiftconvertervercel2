@@ -94,6 +94,24 @@ export default function CreditsPage() {
         }
     };
 
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const ls = (window as any).LemonSqueezy;
+            if (ls) {
+                ls.Setup({
+                    eventHandler: (event: any) => {
+                        console.log('Lemon Squeezy Global event:', event);
+                        if (event.event === 'Checkout.Success') {
+                            toast.success('Purchase successful!');
+                            fetchCreditBalance();
+                            refreshUser();
+                        }
+                    }
+                });
+            }
+        }
+    }, [refreshUser]);
+
     const handlePurchase = async (packageId: string, event?: React.MouseEvent) => {
         if (event) {
             event.preventDefault();
@@ -123,33 +141,10 @@ export default function CreditsPage() {
                 if (typeof window !== 'undefined') {
                     console.log("Lemon Squeezy Debug: Starting purchase flow");
                     
-                    // Helper to get LemonSqueezy object
-                    const getLS = () => (window as any).LemonSqueezy;
-                    
-                    // If script is loaded but not initialized, try to initialize it
-                    if (!getLS() && (window as any).createLemonSqueezy) {
-                        console.log("Lemon Squeezy Debug: Initializing via createLemonSqueezy()");
-                        (window as any).createLemonSqueezy();
-                    }
-                    
-                    let ls = getLS();
+                    const ls = (window as any).LemonSqueezy;
                     console.log("Lemon Squeezy Debug: window.LemonSqueezy type =", typeof ls);
 
                     if (ls) {
-                        console.log("Lemon Squeezy Debug: Using LemonSqueezy.Url.Open()");
-                        
-                        // Setup event handler
-                        ls.Setup({
-                            eventHandler: (event: any) => {
-                                console.log('Lemon Squeezy event:', event);
-                                if (event.event === 'Checkout.Success') {
-                                    toast.success('Purchase successful!');
-                                    fetchCreditBalance();
-                                    refreshUser();
-                                }
-                            }
-                        });
-                        
                         // Ensure the URL has embed=1 for the overlay to work correctly
                         let checkoutUrl = response.data.checkoutUrl;
                         if (checkoutUrl && !checkoutUrl.includes('embed=1')) {
@@ -158,14 +153,13 @@ export default function CreditsPage() {
                         }
                         
                         try {
+                            console.log("Lemon Squeezy Debug: Calling Url.Open()");
                             ls.Url.Open(checkoutUrl);
                         } catch (e) {
                             console.error("Lemon Squeezy Debug: Url.Open failed", e);
-                            // Temporarily disabled fallback to debug "both" issue
-                            // window.location.href = checkoutUrl;
                         }
                     } else {
-                        // Fallback to direct redirect
+                        // Fallback to direct redirect if LemonSqueezy is missing
                         console.warn("Lemon Squeezy Debug: LemonSqueezy object not found, falling back to redirect.");
                         window.location.href = response.data.checkoutUrl;
                     }

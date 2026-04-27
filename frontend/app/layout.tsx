@@ -103,10 +103,10 @@ export default function RootLayout({
                         {children}
                         <Toaster />
                         <Script 
-                            src="https://swiftmxbridge.com/js/lemon.js" 
+                            src="https://app.lemonsqueezy.com/js/lemon.js" 
                             strategy="afterInteractive"
                             onLoad={() => {
-                                console.log("Lemon Squeezy Debug: Script loaded via custom domain");
+                                console.log("Lemon Squeezy Debug: Script loaded via main domain");
                             }}
                         />
                     </AuthProvider>
