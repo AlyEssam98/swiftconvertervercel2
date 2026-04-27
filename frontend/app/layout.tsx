@@ -1,5 +1,7 @@
-import React, { ReactNode } from "react";
+import React, { type ReactNode } from "react";
 import type { Metadata } from "next";
+import Script from "next/script";
+import LemonSqueezyScript from "@/components/LemonSqueezyScript";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
@@ -103,8 +105,7 @@ export default function RootLayout({
                         <IdleSessionManager />
                         {children}
                         <Toaster />
-                        {/* @ts-ignore */}
-                        <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>
+                        <LemonSqueezyScript />
                     </AuthProvider>
                 </ThemeProvider>
             </body>

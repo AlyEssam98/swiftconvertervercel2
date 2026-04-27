@@ -109,6 +109,25 @@ export default function CreditsPage() {
                         }
                     }
                 });
+            } else {
+                // If not loaded yet, wait for it
+                const handleLSLoaded = () => {
+                    const ls = (window as any).LemonSqueezy;
+                    if (ls) {
+                        ls.Setup({
+                            eventHandler: (event: any) => {
+                                console.log('Lemon Squeezy Global event (deferred):', event);
+                                if (event.event === 'Checkout.Success') {
+                                    toast.success('Purchase successful!');
+                                    fetchCreditBalance();
+                                    refreshUser();
+                                }
+                            }
+                        });
+                    }
+                };
+                window.addEventListener('LemonSqueezyLoaded', handleLSLoaded);
+                return () => window.removeEventListener('LemonSqueezyLoaded', handleLSLoaded);
             }
         }
     }, [refreshUser]);
