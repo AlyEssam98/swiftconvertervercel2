@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { CreditCard, Plus, TrendingUp, Loader2, CheckCircle } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import api from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
