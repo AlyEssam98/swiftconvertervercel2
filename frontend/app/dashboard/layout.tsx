@@ -60,8 +60,8 @@ export default function DashboardLayout({
                     {/* Logo */}
                     <div className="flex items-center justify-between mb-6 px-2">
                         <Link href="/dashboard" className="flex items-center space-x-2">
-                            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                                <ArrowRightLeft className="w-5 h-5 text-white" />
+                            <div className="w-8 h-8 flex items-center justify-center">
+                                <img src="/logo.png" alt="SwiftMX Bridge Logo" className="w-full h-full object-contain" />
                             </div>
                             <span className="text-lg font-semibold text-gray-900">Swift MX Bridge</span>
                         </Link>

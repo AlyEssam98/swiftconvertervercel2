@@ -66,12 +66,12 @@ export default function LandingPage() {
                         <motion.div 
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25"
+                            className="relative w-10 h-10 flex items-center justify-center"
                         >
-                            <ArrowRightLeft className="w-5 h-5 text-white" />
+                            <img src="/logo.png" alt="SwiftMX Bridge Logo" className="w-full h-full object-contain" />
                         </motion.div>
                         <div className="flex flex-col">
-                            <span className="text-lg font-bold tracking-tight">SwiftMX Bridge</span>
+                            <span className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">SwiftMX Bridge</span>
                             <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Enterprise Translation</span>
                         </div>
                     </Link>
@@ -336,8 +336,8 @@ export default function LandingPage() {
                     <div className="grid md:grid-cols-4 gap-12 mb-16">
                         <div className="col-span-1 md:col-span-1">
                             <Link href="/" className="flex items-center space-x-3 mb-8">
-                                <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
-                                    <ArrowRightLeft className="w-6 h-6 text-white" />
+                                <div className="w-10 h-10 flex items-center justify-center">
+                                    <img src="/logo.png" alt="SwiftMX Bridge Logo" className="w-full h-full object-contain" />
                                 </div>
                                 <span className="text-xl font-bold text-white tracking-tight">SwiftMX Bridge</span>
                             </Link>

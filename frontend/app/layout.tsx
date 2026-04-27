@@ -42,10 +42,9 @@ export const metadata: Metadata = {
     publisher: "SwiftMX Bridge",
     icons: {
         icon: [
-            { url: '/favicon.svg', type: 'image/svg+xml' },
-            { url: '/favicon.ico', sizes: 'any' }
+            { url: '/logo.png', type: 'image/png' },
         ],
-        apple: '/favicon.svg',
+        apple: '/logo.png',
     },
     robots: {
         index: true,
