@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "sonner";
 import { IdleSessionManager } from "@/components/auth/IdleSessionManager";
+import Script from "next/script";
 
 const inter = Inter({
     subsets: ["latin"],
@@ -101,8 +102,13 @@ export default function RootLayout({
                         <IdleSessionManager />
                         {children}
                         <Toaster />
-                        {/* @ts-ignore */}
-                        <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>
+                        <Script 
+                            src="https://swiftmxbridge.com/js/lemon.js" 
+                            strategy="afterInteractive"
+                            onLoad={() => {
+                                console.log("Lemon Squeezy Debug: Script loaded via custom domain");
+                            }}
+                        />
                     </AuthProvider>
                 </ThemeProvider>
             </body>

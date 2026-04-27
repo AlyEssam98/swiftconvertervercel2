@@ -94,7 +94,12 @@ export default function CreditsPage() {
         }
     };
 
-    const handlePurchase = async (packageId: string) => {
+    const handlePurchase = async (packageId: string, event?: React.MouseEvent) => {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        
         setIsPurchasing(packageId);
         try {
             const response = await api.post<{ checkoutUrl?: string; message: string }>('/api/v1/credits/purchase', { packageId });
@@ -117,21 +122,31 @@ export default function CreditsPage() {
                 // Use Lemon Squeezy overlay if available
                 if (typeof window !== 'undefined') {
                     console.log("Lemon Squeezy Debug: Starting purchase flow");
-                    console.log("Lemon Squeezy Debug: checkoutUrl =", response.data.checkoutUrl);
                     
-                    // If script is loaded but not initialized, initialize it
-                    if (!(window as any).LemonSqueezy && (window as any).createLemonSqueezy) {
+                    // Helper to get LemonSqueezy object
+                    const getLS = () => (window as any).LemonSqueezy;
+                    
+                    // If script is loaded but not initialized, try to initialize it
+                    if (!getLS() && (window as any).createLemonSqueezy) {
                         console.log("Lemon Squeezy Debug: Initializing via createLemonSqueezy()");
                         (window as any).createLemonSqueezy();
                     }
                     
-                    console.log("Lemon Squeezy Debug: window.LemonSqueezy type =", typeof (window as any).LemonSqueezy);
+                    let ls = getLS();
+                    console.log("Lemon Squeezy Debug: window.LemonSqueezy type =", typeof ls);
 
-                    if ((window as any).LemonSqueezy) {
+                    if (ls) {
                         console.log("Lemon Squeezy Debug: Using LemonSqueezy.Url.Open()");
-                        (window as any).LemonSqueezy.Setup({
+                        
+                        // Setup event handler
+                        ls.Setup({
                             eventHandler: (event: any) => {
                                 console.log('Lemon Squeezy event:', event);
+                                if (event.event === 'Checkout.Success') {
+                                    toast.success('Purchase successful!');
+                                    fetchCreditBalance();
+                                    refreshUser();
+                                }
                             }
                         });
                         
@@ -142,7 +157,13 @@ export default function CreditsPage() {
                             console.log("Lemon Squeezy Debug: Appended embed=1, new URL =", checkoutUrl);
                         }
                         
-                        (window as any).LemonSqueezy.Url.Open(checkoutUrl);
+                        try {
+                            ls.Url.Open(checkoutUrl);
+                        } catch (e) {
+                            console.error("Lemon Squeezy Debug: Url.Open failed", e);
+                            // Temporarily disabled fallback to debug "both" issue
+                            // window.location.href = checkoutUrl;
+                        }
                     } else {
                         // Fallback to direct redirect
                         console.warn("Lemon Squeezy Debug: LemonSqueezy object not found, falling back to redirect.");
@@ -230,7 +251,7 @@ export default function CreditsPage() {
                                         ${pkg.price}
                                     </div>
                                     <Button
-                                        onClick={() => handlePurchase(pkg.id)}
+                                        onClick={(e) => handlePurchase(pkg.id, e)}
                                         disabled={isPurchasing === pkg.id}
                                         className={`w-full ${pkg.popular 
                                             ? 'bg-blue-600 hover:bg-blue-700' 
