@@ -5,7 +5,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "sonner";
 import { IdleSessionManager } from "@/components/auth/IdleSessionManager";
-import NextScript from "next/script";
+
 
 const inter = Inter({
     subsets: ["latin"],
@@ -103,13 +103,8 @@ export default function RootLayout({
                         <IdleSessionManager />
                         {children}
                         <Toaster />
-                        <NextScript 
-                            src="https://app.lemonsqueezy.com/js/lemon.js" 
-                            strategy="afterInteractive"
-                            onLoad={() => {
-                                console.log("Lemon Squeezy Debug: Script loaded via main domain");
-                            }}
-                        />
+                        {/* @ts-ignore */}
+                        <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>
                     </AuthProvider>
                 </ThemeProvider>
             </body>
