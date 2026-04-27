@@ -116,21 +116,36 @@ export default function CreditsPage() {
                 
                 // Use Lemon Squeezy overlay if available
                 if (typeof window !== 'undefined') {
+                    console.log("Lemon Squeezy Debug: Starting purchase flow");
+                    console.log("Lemon Squeezy Debug: checkoutUrl =", response.data.checkoutUrl);
+                    
                     // If script is loaded but not initialized, initialize it
                     if (!(window as any).LemonSqueezy && (window as any).createLemonSqueezy) {
+                        console.log("Lemon Squeezy Debug: Initializing via createLemonSqueezy()");
                         (window as any).createLemonSqueezy();
                     }
                     
+                    console.log("Lemon Squeezy Debug: window.LemonSqueezy type =", typeof (window as any).LemonSqueezy);
+
                     if ((window as any).LemonSqueezy) {
+                        console.log("Lemon Squeezy Debug: Using LemonSqueezy.Url.Open()");
                         (window as any).LemonSqueezy.Setup({
                             eventHandler: (event: any) => {
                                 console.log('Lemon Squeezy event:', event);
                             }
                         });
-                        (window as any).LemonSqueezy.Url.Open(response.data.checkoutUrl);
+                        
+                        // Ensure the URL has embed=1 for the overlay to work correctly
+                        let checkoutUrl = response.data.checkoutUrl;
+                        if (checkoutUrl && !checkoutUrl.includes('embed=1')) {
+                            checkoutUrl += checkoutUrl.includes('?') ? '&embed=1' : '?embed=1';
+                            console.log("Lemon Squeezy Debug: Appended embed=1, new URL =", checkoutUrl);
+                        }
+                        
+                        (window as any).LemonSqueezy.Url.Open(checkoutUrl);
                     } else {
                         // Fallback to direct redirect
-                        console.warn("LemonSqueezy object not found, falling back to redirect.");
+                        console.warn("Lemon Squeezy Debug: LemonSqueezy object not found, falling back to redirect.");
                         window.location.href = response.data.checkoutUrl;
                     }
                 }
