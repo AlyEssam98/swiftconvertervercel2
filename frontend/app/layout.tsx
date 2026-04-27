@@ -1,11 +1,11 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "sonner";
 import { IdleSessionManager } from "@/components/auth/IdleSessionManager";
-import Script from "next/script";
+import NextScript from "next/script";
 
 const inter = Inter({
     subsets: ["latin"],
@@ -88,7 +88,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 export default function RootLayout({
     children,
 }: Readonly<{
-    children: React.ReactNode;
+    children: ReactNode;
 }>) {
     return (
         <html lang="en" className={inter.variable} suppressHydrationWarning>
@@ -103,7 +103,7 @@ export default function RootLayout({
                         <IdleSessionManager />
                         {children}
                         <Toaster />
-                        <Script 
+                        <NextScript 
                             src="https://app.lemonsqueezy.com/js/lemon.js" 
                             strategy="afterInteractive"
                             onLoad={() => {

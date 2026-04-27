@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { CreditCard, Plus, TrendingUp, Loader2, CheckCircle } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, MouseEvent as ReactMouseEvent } from 'react';
 import { toast } from 'sonner';
 import api from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
@@ -112,7 +112,7 @@ export default function CreditsPage() {
         }
     }, [refreshUser]);
 
-    const handlePurchase = async (packageId: string, event?: React.MouseEvent) => {
+    const handlePurchase = async (packageId: string, event?: ReactMouseEvent) => {
         if (event) {
             event.preventDefault();
             event.stopPropagation();
@@ -245,7 +245,7 @@ export default function CreditsPage() {
                                         ${pkg.price}
                                     </div>
                                     <Button
-                                        onClick={(e) => handlePurchase(pkg.id, e)}
+                                        onClick={(e: ReactMouseEvent) => handlePurchase(pkg.id, e)}
                                         disabled={isPurchasing === pkg.id}
                                         className={`w-full ${pkg.popular 
                                             ? 'bg-blue-600 hover:bg-blue-700' 
