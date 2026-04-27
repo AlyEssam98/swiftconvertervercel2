@@ -96,40 +96,18 @@ export default function CreditsPage() {
     };
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const ls = (window as any).LemonSqueezy;
-            if (ls) {
-                ls.Setup({
-                    eventHandler: (event: any) => {
-                        console.log('Lemon Squeezy Global event:', event);
-                        if (event.event === 'Checkout.Success') {
-                            toast.success('Purchase successful!');
-                            fetchCreditBalance();
-                            refreshUser();
-                        }
-                    }
-                });
-            } else {
-                // If not loaded yet, wait for it
-                const handleLSLoaded = () => {
-                    const ls = (window as any).LemonSqueezy;
-                    if (ls) {
-                        ls.Setup({
-                            eventHandler: (event: any) => {
-                                console.log('Lemon Squeezy Global event (deferred):', event);
-                                if (event.event === 'Checkout.Success') {
-                                    toast.success('Purchase successful!');
-                                    fetchCreditBalance();
-                                    refreshUser();
-                                }
-                            }
-                        });
-                    }
-                };
-                window.addEventListener('LemonSqueezyLoaded', handleLSLoaded);
-                return () => window.removeEventListener('LemonSqueezyLoaded', handleLSLoaded);
+        const handleLSEvent = (event: any) => {
+            const lsEvent = event.detail;
+            console.log('CreditsPage received LS event:', lsEvent);
+            if (lsEvent.event === 'Checkout.Success') {
+                toast.success('Purchase successful!');
+                fetchCreditBalance();
+                refreshUser();
             }
-        }
+        };
+
+        window.addEventListener('LemonSqueezyEvent', handleLSEvent);
+        return () => window.removeEventListener('LemonSqueezyEvent', handleLSEvent);
     }, [refreshUser]);
 
     const handlePurchase = async (packageId: string, event?: MouseEvent) => {
@@ -169,14 +147,30 @@ export default function CreditsPage() {
                         let checkoutUrl = response.data.checkoutUrl;
                         if (checkoutUrl && !checkoutUrl.includes('embed=1')) {
                             checkoutUrl += checkoutUrl.includes('?') ? '&embed=1' : '?embed=1';
-                            console.log("Lemon Squeezy Debug: Appended embed=1, new URL =", checkoutUrl);
                         }
                         
+                        console.log("Lemon Squeezy Debug: Triggering via dynamic button");
+                        // Creating a temporary link with the required class is often more reliable than Url.Open()
+                        const link = document.createElement('a');
+                        link.href = checkoutUrl;
+                        link.className = 'lemonsqueezy-button';
+                        link.style.display = 'none';
+                        document.body.appendChild(link);
+                        
                         try {
-                            console.log("Lemon Squeezy Debug: Calling Url.Open()");
-                            ls.Url.Open(checkoutUrl);
+                            // Refresh LS to pick up the new button and then click it
+                            ls.Refresh();
+                            link.click();
                         } catch (e) {
-                            console.error("Lemon Squeezy Debug: Url.Open failed", e);
+                            console.error("Lemon Squeezy Debug: Dynamic trigger failed", e);
+                            window.location.href = checkoutUrl;
+                        } finally {
+                            // Clean up after a delay
+                            setTimeout(() => {
+                                if (document.body.contains(link)) {
+                                    document.body.removeChild(link);
+                                }
+                            }, 1000);
                         }
                     } else {
                         // Fallback to direct redirect if LemonSqueezy is missing
