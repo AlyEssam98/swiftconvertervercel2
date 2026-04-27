@@ -105,6 +105,10 @@ export default function RootLayout({
                         <IdleSessionManager />
                         {children}
                         <Toaster />
+                        <Script
+                            src="https://app.lemonsqueezy.com/js/lemon.js"
+                            strategy="beforeInteractive"
+                        />
                         <LemonSqueezyScript />
                     </AuthProvider>
                 </ThemeProvider>

@@ -139,8 +139,15 @@ export default function CreditsPage() {
                 if (typeof window !== 'undefined') {
                     console.log("Lemon Squeezy Debug: Starting purchase flow");
                     
-                    const ls = (window as any).LemonSqueezy;
+                    let ls = (window as any).LemonSqueezy;
                     console.log("Lemon Squeezy Debug: window.LemonSqueezy type =", typeof ls);
+
+                    // If not found, try one last time after a tiny delay
+                    if (!ls) {
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        ls = (window as any).LemonSqueezy;
+                        console.log("Lemon Squeezy Debug: Re-checking LS type =", typeof ls);
+                    }
 
                     if (ls) {
                         // Ensure the URL has embed=1 for the overlay to work correctly

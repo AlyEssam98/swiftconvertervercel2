@@ -1,6 +1,5 @@
 "use client";
 
-import Script from "next/script";
 import { useEffect, useRef } from "react";
 
 export default function LemonSqueezyScript() {
@@ -8,7 +7,7 @@ export default function LemonSqueezyScript() {
 
     const initLS = (source: string) => {
         // @ts-ignore
-        if (window.LemonSqueezy && !isInitialized.current) {
+        if (typeof window !== 'undefined' && window.LemonSqueezy && !isInitialized.current) {
             console.log(`Lemon Squeezy: Initializing from ${source}`);
             // @ts-ignore
             window.LemonSqueezy.Setup({
@@ -25,20 +24,26 @@ export default function LemonSqueezyScript() {
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
+            // Check immediately
             // @ts-ignore
             if (window.LemonSqueezy) {
                 initLS('useEffect');
             }
+
+            // Also check periodically for a few seconds as a fallback
+            let checks = 0;
+            const interval = setInterval(() => {
+                // @ts-ignore
+                if (window.LemonSqueezy) {
+                    initLS('interval');
+                    clearInterval(interval);
+                }
+                if (++checks > 20) clearInterval(interval);
+            }, 500);
+
+            return () => clearInterval(interval);
         }
     }, []);
 
-    return (
-        <Script
-            src="https://app.lemonsqueezy.com/js/lemon.js"
-            strategy="afterInteractive"
-            onLoad={() => {
-                initLS('onLoad');
-            }}
-        />
-    );
+    return null;
 }
