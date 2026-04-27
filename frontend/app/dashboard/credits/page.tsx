@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { CreditCard, Plus, TrendingUp, Loader2, CheckCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import Script from 'next/script';
 import { toast } from 'sonner';
 import api from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
@@ -101,7 +102,14 @@ export default function CreditsPage() {
             if (response.data.checkoutUrl) {
                 // Store current path to return after payment
                 sessionStorage.setItem('returnTo', '/dashboard/credits');
-                window.location.href = response.data.checkoutUrl;
+                
+                // Use Lemon Squeezy overlay if available
+                if (typeof window !== 'undefined' && (window as any).LemonSqueezy) {
+                    (window as any).LemonSqueezy.Url.Open(response.data.checkoutUrl);
+                } else {
+                    // Fallback to direct redirect
+                    window.location.href = response.data.checkoutUrl;
+                }
             } else {
                 toast.success(response.data.message);
                 await fetchCreditBalance();
@@ -117,6 +125,15 @@ export default function CreditsPage() {
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
+            <Script
+                src="https://app.lemonsqueezy.com/js/lemon.js"
+                strategy="lazyOnload"
+                onLoad={() => {
+                    if (typeof window !== 'undefined' && (window as any).createLemonSqueezy) {
+                        (window as any).createLemonSqueezy();
+                    }
+                }}
+            />
             <div>
                 <h1 className="text-2xl font-bold text-gray-900">Credits</h1>
                 <p className="text-gray-500">Manage your conversion credits</p>
